@@ -54,6 +54,8 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
+    private String id = null;
+    private String token = null;
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -198,7 +200,6 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
-            goMain();
 
         }
     }
@@ -337,43 +338,15 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 }
             }
             */
-            InputStream ip = null;
-            String result = null;
-            try {
-                String q = "user=" + mEmail + "&password=" + mPassword;
-                URL apiURL = new URL("http://bloomgenetics.tech/v1/auth");
-                HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
-                client.setRequestMethod("POST");
-                client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
-                client.addRequestProperty("charset", "utf-8");
-                client.setRequestProperty("Content-Length", Integer.toString(q.length()));
-                client.setUseCaches(false);
-                client.setDoOutput(true);
-                DataOutputStream op = new DataOutputStream(client.getOutputStream());
-                op.write(q.getBytes());
-                Log.w("Auth",mEmail);
-                ip = new BufferedInputStream(client.getInputStream());
-                BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
-                StringBuilder sb = new StringBuilder();
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line+"\n");
-                }
-                result = sb.toString();
-                Log.w("Auth",result);
-            } catch (Exception e) {
+            UserAuth u = UserAuth.getInstance();
+            u.setUsername(mEmail);
 
-            } finally {
+            if(u.Login(mPassword)) {
+                goMain();
             }
-            JSONObject json = null;
-            String token = null;
-            try {
-                json = new JSONObject(result);
-                token = json.getString("token");
-            } catch (Exception e) {
-
+            else {
+                return false;
             }
-            Log.w("Auth", "token: " + token);
 
             // TODO: register the new account here.
             return true;
@@ -381,7 +354,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
 
         // Checks to see if user token is same as last time to avoid having to log in every time.
         private void confirmToken(String token) {
-            //URL apiURL = new URL("http://" + mEmail + ":" + token + "@bloomgenetics.tech/v1/auth");
+            //URL apiURL = new URL("http://" + mEmail + ":" + token + "@bloomgenetics.tech/api/v1/auth");
         }
 
         @Override
