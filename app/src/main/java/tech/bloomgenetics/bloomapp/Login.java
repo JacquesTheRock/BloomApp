@@ -53,17 +53,10 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     /**
      * Id to identity READ_CONTACTS permission request.
      */
-    private static final int REQUEST_READ_CONTACTS = 0;
+    //private static final int REQUEST_READ_CONTACTS = 0;
     private String id = null;
     private String token = null;
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -80,6 +73,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // Set up the login form.
+        // Collects username and password from text lines, attempts to log in using them.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
@@ -95,6 +89,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             }
         });
 
+        // Button that attempts to log in when button is pressed.
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -103,18 +98,28 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             }
         });
 
+        // Button that redirects to the "Create New Account" page
+        Button mCreateAccountButton = (Button) findViewById(R.id.create_account_button);
+        mCreateAccountButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goCreateAccount();
+            }
+        });
+
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
 
+    // Here by default. We never use the contacts, but this function is needed by other parts of this page.
     private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
+/*        if (!mayRequestContacts()) {
             return;
         }
-
+*/
         getLoaderManager().initLoader(0, null, this);
     }
-
+/*
     private boolean mayRequestContacts() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
@@ -136,10 +141,11 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         }
         return false;
     }
+  */
 
     /**
      * Callback received when a permissions request has been completed.
-     */
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -149,7 +155,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             }
         }
     }
-
+    */
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -203,7 +209,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
 
         }
     }
-
+    // Not used anymore, left here in case we decide to use it later.
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
         return email.contains("@");
@@ -357,6 +363,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             //URL apiURL = new URL("http://" + mEmail + ":" + token + "@bloomgenetics.tech/api/v1/auth");
         }
 
+        // Happens if attempting to log in fails.
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
@@ -378,9 +385,15 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
 
 
     }
-    /* Redirects user to Main_Page when login button is clicked */
+
+    /* Redirects user to MainPage when login button is clicked */
     public void goMain() {
         Intent intent = new Intent(this.getBaseContext(), MainPage.class);
+        startActivity(intent);
+    }
+    /* Redirects user to CreateAccount when appropriate button is clicked */
+    public void goCreateAccount() {
+        Intent intent = new Intent(this.getBaseContext(), CreateAccount.class);
         startActivity(intent);
     }
 }

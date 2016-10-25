@@ -23,4 +23,6 @@
     <string name="title_activity_cross_info">CrossInfo</string>
     <string name="title_activity_current_crosses">CurrentCrosses</string>
     <string name="title_activity_current_projects">CurrentProjects</string>
+    <string name="title_activity_create_account">CreateAccount</string>
+    <string name="title_activity_new_project">NewProject</string>
 </resources>

@@ -28,29 +28,26 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 
-public class MainPage extends AppCompatActivity
+public class NewProject extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     UserProjectSearch projTask;
-
-    // Loads everything that appears on the page when it's loaded.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_page);
+        setContentView(R.layout.activity_new_project);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Loads the hamburger menu.
+        Button mCreateProjectButton = (Button) findViewById(R.id.login_redirect_button);
+        mCreateProjectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goMainPage();
+            }
+        });
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -60,24 +57,13 @@ public class MainPage extends AppCompatActivity
         projTask.execute((Void)null);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        // Button loaded and made functional.
-        Button mNewProjectButton = (Button) findViewById(R.id.new_project_button);
-        mNewProjectButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                goNewProject();
-            }
-        });
     }
 
-    // Functionality to take user to next page when button is pressed.
-    public void goNewProject() {
-        Intent intent = new Intent(this.getBaseContext(), NewProject.class);
+    public void goMainPage() {
+        Intent intent = new Intent(this.getBaseContext(), MainPage.class);
         startActivity(intent);
     }
 
-    // Closes hamburger menu when back button is pressed.
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -182,6 +168,7 @@ public class MainPage extends AppCompatActivity
 
             }
 
+            // TODO: register the new account here.
             return true;
         }
 

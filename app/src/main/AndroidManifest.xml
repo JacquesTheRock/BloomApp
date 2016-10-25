@@ -42,8 +42,15 @@
         <activity
             android:name=".CurrentProjects"
             android:label="@string/title_activity_current_projects"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".CreateAccount"
+            android:label="@string/title_activity_create_account"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".NewProject"
+            android:label="@string/title_activity_new_project"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
-

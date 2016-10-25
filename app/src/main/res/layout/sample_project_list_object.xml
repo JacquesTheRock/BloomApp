@@ -1,0 +1,28 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/tech.bloomgenetics.bloomapp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <tech.bloomgenetics.bloomapp.projectListObject
+
+        android:icon="@mipmap/test_image"
+        android:layout_width="wrap_content"
+        android:layout_height="57dp"
+        android:background="#ccc"
+        android:paddingBottom="40dp"
+        android:foregroundGravity="center"
+        app:exampleColor="#33b5e5"
+        app:exampleDimension="24sp"
+        app:exampleDrawable="@android:drawable/ic_menu_add"
+        app:exampleString="Hello, projectListObject"
+        android:id="@+id/projectListObject" />
+
+
+    <TextView
+        android:id="@+id/project_name"
+        android:layout_width="wrap_content"
+        android:layout_height="57dp"
+        android:text="Project 1"
+        />
+
+</FrameLayout>

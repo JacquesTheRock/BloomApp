@@ -32,6 +32,10 @@ class UserAuth {
         user = username;
         login_token = "";
     }
+
+    public String getUsername() {
+        return user;
+    }
     public String getAuthorization() {
         return user + ":" + login_token;
     }

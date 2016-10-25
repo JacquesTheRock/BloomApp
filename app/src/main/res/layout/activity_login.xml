@@ -77,6 +77,19 @@
                 android:textStyle="bold"
                 android:onClick="goMain" />
 
+            <Button
+                android:id="@+id/create_account_button"
+                style="?android:textAppearanceSmall"
+                android:background="#0094FF"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:text="Create an Account!"
+                android:textStyle="bold"
+                android:onClick="goCreateAccount" />
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
