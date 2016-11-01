@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -16,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import org.json.JSONArray;
@@ -32,7 +34,8 @@ import java.net.URL;
 public class NewProject extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    UserProjectSearch projTask;
+    private ProjectCreateTask createTask;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,13 +56,46 @@ public class NewProject extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-        projTask = new UserProjectSearch();
-        projTask.execute((Void)null);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
 
     public void goMainPage() {
+
+        String proj_name = ((EditText) findViewById(R.id.new_project_name)).getText().toString();
+        String proj_description = ((EditText) findViewById(R.id.new_project_description)).getText().toString();
+        String proj_type = ((EditText) findViewById(R.id.new_project_type)).getText().toString();
+        String proj_species = ((EditText) findViewById(R.id.new_project_species)).getText().toString();
+        String proj_location = ((EditText) findViewById(R.id.new_project_location)).getText().toString();
+
+        if(proj_name.equals("")){
+            EditText cErrorField = (EditText) findViewById(R.id.new_project_name);
+            cErrorField.setError("Project name required!");
+        }
+        else if(proj_type.equals("")){
+            EditText cErrorField = (EditText) findViewById(R.id.new_project_type);
+            cErrorField.setError("Project type required!");
+        }
+        else if(proj_species.equals("")){
+            EditText cErrorField = (EditText) findViewById(R.id.new_project_species);
+            cErrorField.setError("Species required!");
+        }
+        else if(proj_location.equals("")){
+            EditText cErrorField = (EditText) findViewById(R.id.new_project_location);
+            cErrorField.setError("Project location required!");
+        }
+        else {
+            createTask = new ProjectCreateTask(proj_name, proj_description, proj_type, proj_species, proj_location);
+            createTask.execute((Void) null);
+/*
+            Intent intent = new Intent(this.getBaseContext(), MainPage.class);
+            startActivity(intent);
+            */
+        }
+
+    }
+
+    public void goNewProject() {
         Intent intent = new Intent(this.getBaseContext(), MainPage.class);
         startActivity(intent);
     }
@@ -102,17 +138,16 @@ public class NewProject extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        // Lists out all the items of the hamburger menu. Each redirects to the appropriate page.
         if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_profile) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_projects) {
+            goNewProject();
+        } else if (id == R.id.nav_messages) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_mail) {
+        } else if (id == R.id.nav_settings) {
 
         }
 
@@ -120,20 +155,27 @@ public class NewProject extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserProjectSearch extends AsyncTask<Void, Void, Boolean> {
 
-        JSONArray projects;
-        UserProjectSearch() {
+
+    public class ProjectCreateTask extends AsyncTask<Void, Void, Boolean> {
+        String proj_name;
+        String proj_description;
+        String proj_type;
+        String proj_species;
+        String proj_location;
+
+        ProjectCreateTask(String n, String t, String s, String l, String d) {
+            proj_name = n;
+            proj_description = d;
+            proj_type = t;
+            proj_species = s;
+            proj_location = l;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-            UserAuth user = UserAuth.getInstance();
+
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
@@ -141,13 +183,24 @@ public class NewProject extends AppCompatActivity
             }
             InputStream ip = null;
             String result = null;
+
+            // Sends POST request to server to add new user to database.
             try {
-                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/users/" + user.getUsername() + "/projects");
+                String q = "name=" + proj_name + "&description=" + proj_description + "&type=" + proj_type + "&species=" + proj_species + "&location=" + proj_location;
+                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/projects");
                 HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
-                client.setRequestMethod("GET");
+                client.setRequestMethod("POST");
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
+                byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,0));
+                Log.w("Authorization", "Basic " + Base64.encodeToString(ba,0));
                 client.addRequestProperty("charset", "utf-8");
+                client.setRequestProperty("Content-Length", Integer.toString(q.length()));
                 client.setUseCaches(false);
+                client.setDoOutput(true);
+                DataOutputStream op = new DataOutputStream(client.getOutputStream());
+                op.write(q.getBytes());
+                Log.w("Project Creation",proj_name);
                 ip = new BufferedInputStream(client.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
                 StringBuilder sb = new StringBuilder();
@@ -156,17 +209,12 @@ public class NewProject extends AppCompatActivity
                     sb.append(line+"\n");
                 }
                 result = sb.toString();
-                Log.w("Project Info",result);
+                Log.w("Project Creation",result);
             } catch (Exception e) {
-                Log.w("Project Info",e + "");
+                Log.w("Project Creation",e + "");
             } finally {
             }
-            try {
-                JSONObject jRes = new JSONObject(result);
-                projects = jRes.getJSONArray("data");
-            } catch(Exception e) {
 
-            }
 
             // TODO: register the new account here.
             return true;
@@ -176,17 +224,29 @@ public class NewProject extends AppCompatActivity
         private void confirmToken(String token) {
             //URL apiURL = new URL("http://" + mEmail + ":" + token + "@bloomgenetics.tech/api/v1/auth");
         }
-/*
+
+        // Upon account creation, user is redirected to Login page to log in using newly created account.
         @Override
         protected void onPostExecute(final Boolean success) {
-            ListView lv = (ListView) findViewById();
 
+            if (success) {
+                finish();
+                /*
+                Intent intent = new Intent(getBaseContext(), MainPage.class);
+                startActivity(intent);
+                */
+                onBackPressed();
+                Intent intent = new Intent(NewProject.this, MainPage.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            } else {
+            }
         }
 
         @Override
         protected void onCancelled() {
         }
-*/
+
 
     }
 

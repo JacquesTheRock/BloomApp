@@ -17,7 +17,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#0094FF"
+            android:background="#C49671"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
@@ -28,21 +28,24 @@
         android:layout_height="match_parent"
         android:weightSum="1">
 
-        <ListView android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-             <Button
-                 android:id="@+id/new_project_button"
-                 style="?android:textAppearanceSmall"
-                 android:background="#0094FF"
-                 android:layout_marginLeft="30dp"
-                 android:layout_marginRight="30dp"
-                 android:layout_width="match_parent"
-                 android:layout_height="wrap_content"
-                 android:layout_marginTop="65dp"
-                 android:text="New Project"
-                 android:textStyle="bold"
-                 android:onClick="goNewProject" />
-        />
+        <tech.bloomgenetics.bloomapp.ProjectListView
+            android:id="@+id/project_list_view"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="60dp"
+            android:drawSelectorOnTop="false"
+            android:layout_weight="0.79" />
+
+        <Button
+            android:id="@+id/new_project_button"
+            style="?android:textAppearanceSmall"
+            android:background="#C49671"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New Project"
+            android:paddingBottom="10dp"
+            android:onClick="goNewProject" />
+
     </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>

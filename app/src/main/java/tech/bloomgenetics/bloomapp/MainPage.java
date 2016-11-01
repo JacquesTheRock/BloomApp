@@ -16,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import org.json.JSONArray;
@@ -28,6 +29,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -41,14 +44,19 @@ public class MainPage extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     UserProjectSearch projTask;
-
+    ProjectListView plv;
+    JSONArray projects;
     // Loads everything that appears on the page when it's loaded.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_page);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        plv = (ProjectListView) findViewById(R.id.project_list_view);
+
 
         // Loads the hamburger menu.
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -71,7 +79,12 @@ public class MainPage extends AppCompatActivity
         });
     }
 
-    // Functionality to take user to next page when button is pressed.
+    // Functionality to take user to main page when button is pressed.
+    public void goMainPage() {
+        Intent intent = new Intent(this.getBaseContext(), MainPage.class);
+        startActivity(intent);
+    }
+    // Functionality to take user to new project when button is pressed.
     public void goNewProject() {
         Intent intent = new Intent(this.getBaseContext(), NewProject.class);
         startActivity(intent);
@@ -95,6 +108,8 @@ public class MainPage extends AppCompatActivity
         return true;
     }
 
+    // Option on right-hand side of banner, will be used as Search function
+    // SETTINGS FLAG
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -116,17 +131,16 @@ public class MainPage extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        // Lists out all the items of the hamburger menu. Each redirects to the appropriate page.
         if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_profile) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_projects) {
+            goMainPage();
+        } else if (id == R.id.nav_messages) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_mail) {
+        } else if (id == R.id.nav_settings) {
 
         }
 
@@ -140,7 +154,6 @@ public class MainPage extends AppCompatActivity
      */
     public class UserProjectSearch extends AsyncTask<Void, Void, Boolean> {
 
-        JSONArray projects;
         UserProjectSearch() {
         }
 
@@ -156,6 +169,8 @@ public class MainPage extends AppCompatActivity
             InputStream ip = null;
             String result = null;
             try {
+
+                Log.w("Project Info",user.getUsername());
                 URL apiURL = new URL("http://bloomgenetics.tech/api/v1/users/" + user.getUsername() + "/projects");
                 HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
                 client.setRequestMethod("GET");
@@ -189,13 +204,44 @@ public class MainPage extends AppCompatActivity
         private void confirmToken(String token) {
             //URL apiURL = new URL("http://" + mEmail + ":" + token + "@bloomgenetics.tech/api/v1/auth");
         }
-/*
+
         @Override
         protected void onPostExecute(final Boolean success) {
-            ListView lv = (ListView) findViewById();
+            String title = "";
+            String role = "";
+            int i;
+
+            for(i=0; i < projects.length(); i++){
+
+                JSONObject json = null;
+
+                try {
+                    json = projects.getJSONObject(i);
+                    if (json.getString("name").equals("")) {
+                        title = "Project Title";
+                    }
+                    else {
+                        title = json.getString("name");
+                    }
+                    if (json.getString("role").equals("")) {
+                        role = "Member";
+                    }
+                    else {
+                        role = json.getString("role");
+                    }
+
+                    Log.w("Project Title:", title);
+                    Log.w("Project Info", role);
+                }
+                catch (Exception e){
+                    Log.w("Error:", e);
+                }
+                plv.AddItem(title, role);
+
+            }
 
         }
-
+/*
         @Override
         protected void onCancelled() {
         }

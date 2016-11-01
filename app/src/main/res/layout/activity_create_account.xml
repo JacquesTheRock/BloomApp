@@ -130,7 +130,7 @@
         <Button
             android:id="@+id/login_redirect_button"
             style="?android:textAppearanceSmall"
-            android:background="#0094FF"
+            android:background="#C49671"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:layout_width="match_parent"

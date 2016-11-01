@@ -25,6 +25,7 @@ import java.net.URL;
 public class CreateAccount extends AppCompatActivity {
 
     private AccountCreateTask createTask;
+    View focusView = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,8 +50,15 @@ public class CreateAccount extends AppCompatActivity {
         String password  = ((EditText) findViewById(R.id.create_password)).getText().toString();
         String cPassword  = ((EditText) findViewById(R.id.create_confirm_password)).getText().toString();
         String address = ((EditText) findViewById(R.id.create_address)).getText().toString();
-        createTask = new AccountCreateTask(email, password, uid, name, address);
-        createTask.execute((Void) null);
+        if(password.equals(cPassword)){
+            createTask = new AccountCreateTask(email, password, uid, name, address);
+            createTask.execute((Void) null);
+        }
+        else {
+            EditText cPasswordField = (EditText) findViewById(R.id.create_confirm_password);
+            cPasswordField.setError("Passwords do not match!");
+        }
+
     }
 
     /**
@@ -83,6 +91,8 @@ public class CreateAccount extends AppCompatActivity {
             }
             InputStream ip = null;
             String result = null;
+
+            // Sends POST request to server to add new user to database.
             try {
                 String q = "username=" + uid + "&email=" + email + "&password=" + password + "&name=" + name;
                 URL apiURL = new URL("http://bloomgenetics.tech/api/v1/users");
@@ -120,6 +130,7 @@ public class CreateAccount extends AppCompatActivity {
             //URL apiURL = new URL("http://" + mEmail + ":" + token + "@bloomgenetics.tech/api/v1/auth");
         }
 
+        // Upon account creation, user is redirected to Login page to log in using newly created account.
         @Override
         protected void onPostExecute(final Boolean success) {
 
