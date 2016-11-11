@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="tech.bloomgenetics.bloomapp.MainPage">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#C49671"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="60dp"
+        android:weightSum="1">
+
+        <TextView
+            android:text="Project Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="35dp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:id="@+id/current_proj_title" />
+
+        <TextView
+            android:text="Project Description:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:gravity="left"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"/>
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/border">
+
+
+            <TextView
+                android:text="Insert Description Here"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                android:gravity="left"
+                android:minLines="4"
+                android:id="@+id/current_proj_description" />
+
+        </ScrollView>
+
+        <TextView
+            android:text="Project Type:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:gravity="left"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"/>
+        <TextView
+            android:text="Type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:gravity="left"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/current_proj_type"/>
+
+        <TextView
+            android:text="Species:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:gravity="left"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"/>
+        <TextView
+            android:text="Species"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:gravity="left"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/current_proj_species"/>
+
+        <TextView
+            android:text="Location:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:gravity="left"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"/>
+        <TextView
+            android:text="Location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:gravity="left"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/current_proj_location"/>
+
+        <TextView
+            android:text="Current Cross:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:gravity="left"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"/>
+        <ImageButton
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            app:srcCompat="@mipmap/test_image"
+            android:layout_gravity="center"
+            android:id="@+id/current_cross_button" />
+
+
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

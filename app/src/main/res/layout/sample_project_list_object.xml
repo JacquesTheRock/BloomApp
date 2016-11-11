@@ -35,11 +35,13 @@
         />
 
     <ImageView
-        android:layout_width="82dp"
-        android:layout_height="79dp"
+        android:id="@+id/project_image"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="25dp"
         android:paddingLeft="0dp"
-        android:layout_marginLeft="20dp"
-        app2:srcCompat="@mipmap/test_image"
-        android:id="@+id/imageView2" />
+        app2:srcCompat="@drawable/profile_default"
+         />
 
 </FrameLayout>

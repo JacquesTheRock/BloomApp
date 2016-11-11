@@ -95,8 +95,9 @@ public class NewProject extends AppCompatActivity
 
     }
 
-    public void goNewProject() {
-        Intent intent = new Intent(this.getBaseContext(), MainPage.class);
+    public void goProjectPage  () {
+        Intent intent = new Intent(NewProject.this, MainPage.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
 
@@ -144,7 +145,7 @@ public class NewProject extends AppCompatActivity
         } else if (id == R.id.nav_profile) {
 
         } else if (id == R.id.nav_projects) {
-            goNewProject();
+            goProjectPage();
         } else if (id == R.id.nav_messages) {
 
         } else if (id == R.id.nav_settings) {
@@ -164,7 +165,7 @@ public class NewProject extends AppCompatActivity
         String proj_species;
         String proj_location;
 
-        ProjectCreateTask(String n, String t, String s, String l, String d) {
+        ProjectCreateTask(String n, String d, String t, String s, String l) {
             proj_name = n;
             proj_description = d;
             proj_type = t;

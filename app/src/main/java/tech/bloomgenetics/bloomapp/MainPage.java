@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -15,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -46,6 +48,7 @@ public class MainPage extends AppCompatActivity
     UserProjectSearch projTask;
     ProjectListView plv;
     JSONArray projects;
+
     // Loads everything that appears on the page when it's loaded.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +72,11 @@ public class MainPage extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        View hView = navigationView.getHeaderView(0);
+        String name = UserAuth.getInstance().getUsername();
+        TextView user_field = (TextView) hView.findViewById(R.id.nav_menu_name);
+        user_field.setText(name);
+
         // Button loaded and made functional.
         Button mNewProjectButton = (Button) findViewById(R.id.new_project_button);
         mNewProjectButton.setOnClickListener(new OnClickListener() {
@@ -77,16 +85,19 @@ public class MainPage extends AppCompatActivity
                 goNewProject();
             }
         });
+
     }
 
     // Functionality to take user to main page when button is pressed.
     public void goMainPage() {
-        Intent intent = new Intent(this.getBaseContext(), MainPage.class);
+        Intent intent = new Intent(MainPage.this, MainPage.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
     // Functionality to take user to new project when button is pressed.
     public void goNewProject() {
-        Intent intent = new Intent(this.getBaseContext(), NewProject.class);
+        Intent intent = new Intent(MainPage.this, NewProject.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
 
@@ -132,9 +143,7 @@ public class MainPage extends AppCompatActivity
         int id = item.getItemId();
 
         // Lists out all the items of the hamburger menu. Each redirects to the appropriate page.
-        if (id == R.id.nav_camera) {
-
-        } else if (id == R.id.nav_profile) {
+        if (id == R.id.nav_profile) {
 
         } else if (id == R.id.nav_projects) {
             goMainPage();
@@ -162,7 +171,7 @@ public class MainPage extends AppCompatActivity
             // TODO: attempt authentication against a network service.
             UserAuth user = UserAuth.getInstance();
             try {
-                Thread.sleep(2000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 return false;
             }
@@ -176,6 +185,8 @@ public class MainPage extends AppCompatActivity
                 client.setRequestMethod("GET");
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                 client.addRequestProperty("charset", "utf-8");
+                byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,0));
                 client.setUseCaches(false);
                 ip = new BufferedInputStream(client.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
@@ -209,9 +220,15 @@ public class MainPage extends AppCompatActivity
         protected void onPostExecute(final Boolean success) {
             String title = "";
             String role = "";
+            String location = "";
+            String type = "";
+            String species = "";
+            String description = "";
+            int proj_id = 0;
             int i;
 
-            for(i=0; i < projects.length(); i++){
+            Log.w("Project List: ", projects.toString());
+            for(i=1; i < projects.length(); i++){
 
                 JSONObject json = null;
 
@@ -229,6 +246,11 @@ public class MainPage extends AppCompatActivity
                     else {
                         role = json.getString("role");
                     }
+                    proj_id = json.getInt("id");
+                    location = json.getString("location");
+                    type = json.getString("type");
+                    species = json.getString("species");
+                    description = json.getString("description");
 
                     Log.w("Project Title:", title);
                     Log.w("Project Info", role);
@@ -236,7 +258,32 @@ public class MainPage extends AppCompatActivity
                 catch (Exception e){
                     Log.w("Error:", e);
                 }
+                final int finalProj_id = proj_id;
+                final String finalTitle = title;
+                final String finalLocation = location;
+                final String finalType = type;
+                final String finalSpecies = species;
+                final String finalDescription = description;
+
+                Log.w("Passing Proj ID: ", String.valueOf(finalProj_id));
+
                 plv.AddItem(title, role);
+                plv.setOnItemClickListener(new ListView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> a, View v, int i, long l) {
+
+                        Intent mainIntent = new Intent(MainPage.this, CurrentProject.class);
+                        mainIntent.putExtra("proj_id", finalProj_id);
+                        mainIntent.putExtra("proj_name", finalTitle);
+                        mainIntent.putExtra("proj_location", finalLocation);
+                        mainIntent.putExtra("proj_type", finalType);
+                        mainIntent.putExtra("proj_species", finalSpecies);
+                        mainIntent.putExtra("proj_desc", finalDescription);
+                        Log.w("Project: ", finalTitle);
+
+                        startActivity(mainIntent);
+                    }
+                });
 
             }
 

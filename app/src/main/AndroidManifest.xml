@@ -40,7 +40,7 @@
             android:label="@string/title_activity_current_crosses"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".CurrentProjects"
+            android:name=".CurrentProject"
             android:label="@string/title_activity_current_projects"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity

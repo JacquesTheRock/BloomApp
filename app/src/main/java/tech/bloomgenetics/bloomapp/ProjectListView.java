@@ -1,9 +1,12 @@
 package tech.bloomgenetics.bloomapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -32,18 +35,21 @@ public class ProjectListView extends ListView {
 
         super(ctx);
         init();
+        setOnItemClickListener(new ClickListener());
     }
 
     public ProjectListView (Context ctx,AttributeSet attrs){
 
         super(ctx,attrs);
         init();
+        setOnItemClickListener(new ClickListener());
     }
 
     public ProjectListView (Context ctx,AttributeSet attrs, int defStyleAttr){
 
         super(ctx,attrs,defStyleAttr);
         init();
+        setOnItemClickListener(new ClickListener());
     }
 
 
@@ -77,6 +83,16 @@ public class ProjectListView extends ListView {
         p.setTitle(title);
         p.setInfo(role);
         pA.add(p);
+    }
+
+    class ClickListener implements OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Log.w("Clicked","" + id);
+
+            Intent intent = new Intent(getContext(), CurrentProject.class);
+            //startActivity(intent);
+        }
     }
 }
 
