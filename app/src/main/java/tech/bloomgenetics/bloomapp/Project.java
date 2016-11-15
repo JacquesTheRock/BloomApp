@@ -8,6 +8,7 @@ public class Project {
 
     private String title;
     private String role;
+    private int id;
 
     public String getTitle() {
         return title;
@@ -23,6 +24,14 @@ public class Project {
 
     public void setInfo(String role) {
         this.role = role;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
 }

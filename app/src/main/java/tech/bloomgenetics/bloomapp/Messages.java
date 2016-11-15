@@ -5,8 +5,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -44,38 +42,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class CurrentProject extends AppCompatActivity
+public class Messages extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    ProjectCrossSearch crossSearch;
-    CrossListView clv;
-    JSONArray crosses;
-    int proj_id = 0;
+    UserProjectSearch projTask;
+    ProjectListView plv;
+    JSONArray projects;
 
     // Loads everything that appears on the page when it's loaded.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        Bundle bundle = getIntent().getExtras();
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_current_project);
+        setContentView(R.layout.activity_messages);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        clv = (CrossListView) findViewById(R.id.cross_list_view);
+        plv = (ProjectListView) findViewById(R.id.project_list_view);
 
-        TextView proj_title_field = (TextView)findViewById(R.id.current_proj_title);
-        TextView proj_description_field = (TextView)findViewById(R.id.current_proj_description);
-        TextView proj_type_field = (TextView)findViewById(R.id.current_proj_type);
-        TextView proj_species_field = (TextView)findViewById(R.id.current_proj_species);
-        TextView proj_location_field = (TextView)findViewById(R.id.current_proj_location);
-
-        proj_title_field.setText(bundle.getString("proj_title"));
-        proj_description_field.setText(bundle.getString("proj_description"));
-        proj_type_field.setText(bundle.getString("proj_type"));
-        proj_species_field.setText(bundle.getString("proj_species"));
-        proj_location_field.setText(bundle.getString("proj_location"));
 
         // Loads the hamburger menu.
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -83,8 +67,8 @@ public class CurrentProject extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-        crossSearch = new ProjectCrossSearch();
-        crossSearch.execute((Void)null);
+        projTask = new UserProjectSearch();
+        projTask.execute((Void)null);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -93,14 +77,12 @@ public class CurrentProject extends AppCompatActivity
         TextView user_field = (TextView) hView.findViewById(R.id.nav_menu_name);
         user_field.setText(name);
 
-        proj_id = bundle.getInt("proj_id");
-        Log.w("Project ID: ", String.valueOf(proj_id));
-
-        Button mNewCrossButton = (Button) findViewById(R.id.new_cross_button);
-        mNewCrossButton.setOnClickListener(new OnClickListener() {
+        // Button loaded and made functional.
+        Button mNewProjectButton = (Button) findViewById(R.id.new_project_button);
+        mNewProjectButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                goNewCross();
+                goMainPage();
             }
         });
 
@@ -108,27 +90,13 @@ public class CurrentProject extends AppCompatActivity
 
     // Functionality to take user to main page when button is pressed.
     public void goMainPage() {
-        Intent intent = new Intent(CurrentProject.this, MainPage.class);
+        Intent intent = new Intent(Messages.this, MainPage.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
-    public void goNewCross() {
-
-        Bundle bundle = getIntent().getExtras();
-
-        Intent intent = new Intent(CurrentProject.this, NewCross.class);
-        intent.putExtra("proj_id", bundle.getInt("proj_id"));
-        intent.putExtra("proj_title", bundle.getString("proj_title"));
-        intent.putExtra("proj_description", bundle.getString("proj_description"));
-        intent.putExtra("proj_type", bundle.getString("proj_type"));
-        intent.putExtra("proj_species", bundle.getString("proj_species"));
-        intent.putExtra("proj_location", bundle.getString("proj_location"));
-        Log.w("Project ID Passed: ", String.valueOf(bundle.getInt("proj_id")));
-        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(intent);
-    }
+    // Functionality to take user to new project when button is pressed.
     public void goMessages() {
-        Intent intent = new Intent(CurrentProject.this, Messages.class);
+        Intent intent = new Intent(Messages.this, Messages.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
@@ -189,12 +157,13 @@ public class CurrentProject extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+    /**
+     * Represents an asynchronous login/registration task used to authenticate
+     * the user.
+     */
+    public class UserProjectSearch extends AsyncTask<Void, Void, Boolean> {
 
-    public class ProjectCrossSearch extends AsyncTask<Void, Void, Boolean> {
-
-        Bundle bundle = getIntent().getExtras();
-
-        ProjectCrossSearch() {
+        UserProjectSearch() {
         }
 
         @Override
@@ -210,32 +179,32 @@ public class CurrentProject extends AppCompatActivity
             String result = null;
             try {
 
-                Log.w("Cross Info", String.valueOf(bundle.getInt("proj_id")));
-                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/projects/" + bundle.getInt("proj_id") + "/crosses");
+                Log.w("Message User",user.getUsername());
+                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/users/" + user.getUsername() + "/mail");
                 HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
                 client.setRequestMethod("GET");
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                 client.addRequestProperty("charset", "utf-8");
                 byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
-                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba, 0));
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,0));
                 client.setUseCaches(false);
                 ip = new BufferedInputStream(client.getInputStream());
-                BufferedReader reader = new BufferedReader(new InputStreamReader(ip, "UTF-8"), 8);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
                 StringBuilder sb = new StringBuilder();
                 String line = null;
                 while ((line = reader.readLine()) != null) {
-                    sb.append(line + "\n");
+                    sb.append(line+"\n");
                 }
                 result = sb.toString();
-                Log.w("Cross Info", result);
+                Log.w("Message Info",result);
             } catch (Exception e) {
-                Log.w("Cross Info", e + "");
+                Log.w("Message Error",e + "");
             } finally {
             }
             try {
                 JSONObject jRes = new JSONObject(result);
-                crosses = jRes.getJSONArray("data");
-            } catch (Exception e) {
+                projects = jRes.getJSONArray("data");
+            } catch(Exception e) {
 
             }
 
@@ -249,59 +218,64 @@ public class CurrentProject extends AppCompatActivity
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            String name = "";
-            int parent1 = 0;
-            int parent2 = 0;
-            int cross_id = 0;
+            String title = "";
+            String role = "";
+            String location = "";
+            String type = "";
+            String species = "";
+            String description = "";
+            int proj_id = 0;
             int i;
 
-            Log.w("Cross List: ", crosses.toString());
+            Log.w("Project List: ", projects.toString());
 
-            try {
+            try{
 
                 JSONObject json = null;
 
-                for (i = 1; i < crosses.length(); i++) {
-                    json = crosses.getJSONObject(i);
+                for(i=1; i < projects.length(); i++){
+                    json = projects.getJSONObject(i);
 
-                    cross_id = json.getInt("id");
-                    parent1 = json.getInt("parent1");
-                    parent2 = json.getInt("parent2");
+                    proj_id = json.getInt("id");
                     if (json.getString("name").equals("")) {
-                        name = "Cross #" + cross_id;
-                    } else {
-                        name = json.getString("name");
+                        title = "Project Title";
+                    }
+                    else {
+                        title = json.getString("name");
+                    }
+                    if (json.getString("role").equals("")) {
+                        role = "Member";
+                    }
+                    else {
+                        role = json.getString("role");
                     }
 
-                    clv.AddItem(name, cross_id);
-                    clv.setOnItemClickListener(new ListView.OnItemClickListener() {
+                    plv.AddItem(title, role, proj_id);
+                    plv.setOnItemClickListener(new ListView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> a, View v, int i, long l) {
 
-                            Intent mainIntent = new Intent(CurrentProject.this, CurrentCross.class);
+                            Intent mainIntent = new Intent(Messages.this, CurrentProject.class);
                             JSONObject selected = null;
-                            int j = clv.aC.get(i).getId();
+                            int j = plv.aP.get(i).getId();
                             int k;
 
                             Log.w("Project ID: ", String.valueOf(j));
-                            for (k = 0; k < crosses.length(); k++) {
+                            for(k=0; k<projects.length(); k++) {
                                 try {
-                                    selected = crosses.getJSONObject(k);
+                                    selected = projects.getJSONObject(k);
 
-                                    if (selected.getInt("id") == j) {
-                                        mainIntent.putExtra("proj_id", bundle.getInt("id"));
-                                        mainIntent.putExtra("proj_title", bundle.getString("name"));
-                                        mainIntent.putExtra("proj_description", bundle.getString("description"));
-                                        mainIntent.putExtra("proj_type", bundle.getString("type"));
-                                        mainIntent.putExtra("proj_species", bundle.getString("species"));
-                                        mainIntent.putExtra("proj_location", bundle.getString("location"));
-                                        mainIntent.putExtra("cross_id", selected.getInt("id"));
-                                        mainIntent.putExtra("cross_name", selected.getString("name"));
-                                        mainIntent.putExtra("cross_p1", selected.getInt("parent1"));
-                                        mainIntent.putExtra("cross_p2", selected.getInt("parent2"));
+                                    if(selected.getInt("id") == j) {
+                                        mainIntent.putExtra("proj_id", selected.getInt("id"));
+                                        mainIntent.putExtra("proj_title", selected.getString("name"));
+                                        mainIntent.putExtra("proj_description", selected.getString("description"));
+                                        mainIntent.putExtra("proj_type", selected.getString("type"));
+                                        mainIntent.putExtra("proj_species", selected.getString("species"));
+                                        mainIntent.putExtra("proj_location", selected.getString("location"));
                                     }
 
-                                } catch (Exception e) {
+                                }
+                                catch (Exception e) {
                                     Log.w("Error: ", e);
                                 }
                             }
@@ -312,11 +286,14 @@ public class CurrentProject extends AppCompatActivity
 
                 }
 
-            } catch (Exception e) {
+            }
+            catch (Exception e){
                 Log.w("Error:", e);
             }
 
         }
 
     }
+
+
 }

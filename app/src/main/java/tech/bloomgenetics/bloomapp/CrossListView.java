@@ -21,31 +21,31 @@ import java.util.Map;
  * Created by mdric on 10/27/2016.
  */
 
-public class ProjectListView extends ListView {
+public class CrossListView extends ListView {
     /*
     SimpleAdapter adapter;
     List<Map<String, String>> listItems;
 
     HashMap<String, String> datum = new HashMap<String, String>();
 */
-    ArrayList<Project> aP = new ArrayList<Project>();
-    ProjectAdapter pA = new ProjectAdapter(this.getContext(),aP);
+    ArrayList<Cross> aC = new ArrayList<Cross>();
+    CrossAdapter cA = new CrossAdapter(this.getContext(),aC);
 
-    public ProjectListView (Context ctx){
+    public CrossListView (Context ctx){
 
         super(ctx);
         init();
         setOnItemClickListener(new ClickListener());
     }
 
-    public ProjectListView (Context ctx,AttributeSet attrs){
+    public CrossListView (Context ctx,AttributeSet attrs){
 
         super(ctx,attrs);
         init();
         setOnItemClickListener(new ClickListener());
     }
 
-    public ProjectListView (Context ctx,AttributeSet attrs, int defStyleAttr){
+    public CrossListView (Context ctx,AttributeSet attrs, int defStyleAttr){
 
         super(ctx,attrs,defStyleAttr);
         init();
@@ -69,21 +69,20 @@ public class ProjectListView extends ListView {
 
 
         //this.(R.layout.sample_project_list_object);
-        setAdapter(pA);
+        setAdapter(cA);
     }
 
-    public void AddItem(String title, String role, int id) {
+    public void AddItem(String name, int id) {
 /*
         projectListObject v = new projectListObject(this.getContext());
 
         TextView mProjectName = (TextView) v.findViewById(R.id.project_name);
         TextView mProjectInfo = (TextView) v.findViewById(R.id.project_info);
 */
-        Project p = new Project();
-        p.setTitle(title);
-        p.setInfo(role);
-        p.setId(id);
-        pA.add(p);
+        Cross c = new Cross();
+        c.setName(name);
+        c.setId(id);
+        cA.add(c);
     }
 
     class ClickListener implements OnItemClickListener {
@@ -91,10 +90,8 @@ public class ProjectListView extends ListView {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Log.w("Clicked","" + id);
 
-            Intent intent = new Intent(getContext(), CurrentProject.class);
+            Intent intent = new Intent(getContext(), CurrentCross.class);
             //startActivity(intent);
         }
     }
 }
-
-// "beansprout123, Member"

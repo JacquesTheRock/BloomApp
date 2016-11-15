@@ -36,12 +36,16 @@
             android:label="@string/title_activity_cross_info"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".CurrentCrosses"
+            android:name=".CurrentCross"
             android:label="@string/title_activity_current_crosses"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".CurrentProject"
             android:label="@string/title_activity_current_projects"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Messages"
+            android:label="Messages"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".CreateAccount"
@@ -50,6 +54,10 @@
         <activity
             android:name=".NewProject"
             android:label="@string/title_activity_new_project"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".NewCross"
+            android:label="NewCross"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

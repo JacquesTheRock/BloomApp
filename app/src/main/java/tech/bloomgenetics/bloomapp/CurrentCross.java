@@ -13,7 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class CurrentCrosses extends AppCompatActivity
+public class CurrentCross extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override

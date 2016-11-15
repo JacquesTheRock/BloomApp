@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="180dp"
+    android:background="@drawable/border"
+    android:layout_height="180dp">
+
+    <TextView
+        android:text="Cross Name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="60dp"
+        android:id="@+id/preview_cross_name"
+        android:textAlignment="center"
+        android:textSize="24sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+        android:text="Cross ID: "
+        android:layout_width="101dp"
+        android:layout_height="40dp"
+        android:textSize="12sp"
+            android:textAlignment="textEnd" />
+
+        <TextView
+            android:text="ID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/preview_cross_id"
+            android:textAlignment="textStart"
+            android:textSize="12sp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+</LinearLayout>

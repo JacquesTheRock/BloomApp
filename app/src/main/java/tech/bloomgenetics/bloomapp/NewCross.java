@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,23 +32,23 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class NewProject extends AppCompatActivity
+public class NewCross extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private ProjectCreateTask createTask;
+    private CrossCreateTask createTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_project);
+        setContentView(R.layout.activity_new_cross);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Button mCreateProjectButton = (Button) findViewById(R.id.login_redirect_button);
+        Button mCreateProjectButton = (Button) findViewById(R.id.new_cross_create_button);
         mCreateProjectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                goMainPage();
+                goCurrentProject();
             }
         });
 
@@ -58,34 +59,32 @@ public class NewProject extends AppCompatActivity
         toggle.syncState();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        View hView = navigationView.getHeaderView(0);
+        String name = UserAuth.getInstance().getUsername();
+        TextView user_field = (TextView) hView.findViewById(R.id.nav_menu_name);
+        user_field.setText(name);
     }
 
-    public void goMainPage() {
+    public void goCurrentProject() {
 
-        String proj_name = ((EditText) findViewById(R.id.new_project_name)).getText().toString();
-        String proj_description = ((EditText) findViewById(R.id.new_project_description)).getText().toString();
-        String proj_type = ((EditText) findViewById(R.id.new_project_type)).getText().toString();
-        String proj_species = ((EditText) findViewById(R.id.new_project_species)).getText().toString();
-        String proj_location = ((EditText) findViewById(R.id.new_project_location)).getText().toString();
+        String cross_name = ((EditText) findViewById(R.id.new_cross_name)).getText().toString();
+        int cross_p1 = 0;
+        int cross_p2 = 0;
 
-        if(proj_name.equals("")){
-            EditText cErrorField = (EditText) findViewById(R.id.new_project_name);
-            cErrorField.setError("Project name required!");
+        if(!((EditText) findViewById(R.id.new_cross_parent1)).getText().toString().equals("")) {
+            cross_p1 = Integer.parseInt(((EditText) findViewById(R.id.new_cross_parent1)).getText().toString());
         }
-        else if(proj_type.equals("")){
-            EditText cErrorField = (EditText) findViewById(R.id.new_project_type);
-            cErrorField.setError("Project type required!");
+        if(!((EditText) findViewById(R.id.new_cross_parent2)).getText().toString().equals("")) {
+            cross_p2 = Integer.parseInt(((EditText) findViewById(R.id.new_cross_parent2)).getText().toString());
         }
-        else if(proj_species.equals("")){
-            EditText cErrorField = (EditText) findViewById(R.id.new_project_species);
-            cErrorField.setError("Species required!");
-        }
-        else if(proj_location.equals("")){
-            EditText cErrorField = (EditText) findViewById(R.id.new_project_location);
-            cErrorField.setError("Project location required!");
+
+        if(cross_name.equals("")){
+            EditText cErrorField = (EditText) findViewById(R.id.new_cross_name);
+            cErrorField.setError("Cross name required!");
         }
         else {
-            createTask = new ProjectCreateTask(proj_name, proj_description, proj_type, proj_species, proj_location);
+            createTask = new CrossCreateTask(cross_name, cross_p1, cross_p2);
             createTask.execute((Void) null);
 /*
             Intent intent = new Intent(this.getBaseContext(), MainPage.class);
@@ -96,12 +95,12 @@ public class NewProject extends AppCompatActivity
     }
 
     public void goProjectPage  () {
-        Intent intent = new Intent(NewProject.this, MainPage.class);
+        Intent intent = new Intent(NewCross.this, MainPage.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
     public void goMessages() {
-        Intent intent = new Intent(NewProject.this, Messages.class);
+        Intent intent = new Intent(NewCross.this, Messages.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
@@ -163,19 +162,15 @@ public class NewProject extends AppCompatActivity
     }
 
 
-    public class ProjectCreateTask extends AsyncTask<Void, Void, Boolean> {
-        String proj_name;
-        String proj_description;
-        String proj_type;
-        String proj_species;
-        String proj_location;
+    public class CrossCreateTask extends AsyncTask<Void, Void, Boolean> {
+        String cross_name;
+        int cross_p1;
+        int cross_p2;
 
-        ProjectCreateTask(String n, String d, String t, String s, String l) {
-            proj_name = n;
-            proj_description = d;
-            proj_type = t;
-            proj_species = s;
-            proj_location = l;
+        CrossCreateTask(String n, int p1, int p2) {
+            cross_name = n;
+            cross_p1 = p1;
+            cross_p2 = p2;
         }
 
         @Override
@@ -183,7 +178,7 @@ public class NewProject extends AppCompatActivity
             // TODO: attempt authentication against a network service.
 
             try {
-                Thread.sleep(2000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 return false;
             }
@@ -192,8 +187,10 @@ public class NewProject extends AppCompatActivity
 
             // Sends POST request to server to add new user to database.
             try {
-                String q = "name=" + proj_name + "&description=" + proj_description + "&type=" + proj_type + "&species=" + proj_species + "&location=" + proj_location;
-                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/projects");
+                Bundle bundle = getIntent().getExtras();
+
+                String q = "parent1=" + cross_p1 + "&parent2=" + cross_p2 + "&name=" + cross_name;
+                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/projects/" + bundle.getInt("proj_id") + "/crosses");
                 HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
                 client.setRequestMethod("POST");
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
@@ -206,7 +203,7 @@ public class NewProject extends AppCompatActivity
                 client.setDoOutput(true);
                 DataOutputStream op = new DataOutputStream(client.getOutputStream());
                 op.write(q.getBytes());
-                Log.w("Project Creation",proj_name);
+                Log.w("Cross Creation", cross_name);
                 ip = new BufferedInputStream(client.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
                 StringBuilder sb = new StringBuilder();
@@ -215,9 +212,9 @@ public class NewProject extends AppCompatActivity
                     sb.append(line+"\n");
                 }
                 result = sb.toString();
-                Log.w("Project Creation",result);
+                Log.w("Cross Creation",result);
             } catch (Exception e) {
-                Log.w("Project Creation",e + "");
+                Log.w("Cross Creation",e + "");
             } finally {
             }
 
@@ -235,6 +232,8 @@ public class NewProject extends AppCompatActivity
         @Override
         protected void onPostExecute(final Boolean success) {
 
+            Bundle bundle = getIntent().getExtras();
+
             if (success) {
                 finish();
                 /*
@@ -242,7 +241,14 @@ public class NewProject extends AppCompatActivity
                 startActivity(intent);
                 */
                 onBackPressed();
-                Intent intent = new Intent(NewProject.this, MainPage.class);
+                Intent intent = new Intent(NewCross.this, CurrentProject.class);
+                intent.putExtra("proj_id", bundle.getInt("proj_id"));
+                intent.putExtra("proj_title", bundle.getString("proj_title"));
+                intent.putExtra("proj_description", bundle.getString("proj_description"));
+                intent.putExtra("proj_type", bundle.getString("proj_type"));
+                intent.putExtra("proj_species", bundle.getString("proj_species"));
+                intent.putExtra("proj_location", bundle.getString("proj_location"));
+                Log.w("Bundle Info ID", String.valueOf(bundle.getInt("proj_id")));
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             } else {

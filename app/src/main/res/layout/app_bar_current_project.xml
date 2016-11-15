@@ -63,6 +63,8 @@
                 android:textStyle="bold"
                 android:gravity="left"
                 android:minLines="4"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
                 android:id="@+id/current_proj_description" />
 
         </ScrollView>
@@ -130,13 +132,39 @@
             android:gravity="left"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"/>
-        <ImageButton
+
+
+        <LinearLayout
             android:layout_width="180dp"
             android:layout_height="180dp"
-            app:srcCompat="@mipmap/test_image"
-            android:layout_gravity="center"
-            android:id="@+id/current_cross_button" />
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
 
+                <tech.bloomgenetics.bloomapp.CrossListView
+                android:id="@+id/cross_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:drawSelectorOnTop="false"
+                android:layout_weight="0.79" />
+
+        </LinearLayout>
+        <TextView
+            android:text="(Click to View Cross)"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:textSize="10dp"
+            android:textStyle="bold"
+            android:paddingBottom="10dp"
+            android:gravity="center"/>
+
+        <Button
+            android:id="@+id/new_cross_button"
+            style="?android:textAppearanceSmall"
+            android:background="#C49671"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add New Cross!"
+            android:onClick="goNewCross" />
 
     </LinearLayout>
 
