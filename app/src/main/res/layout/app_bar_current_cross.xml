@@ -123,8 +123,8 @@
             android:drawSelectorOnTop="false"
             android:layout_weight="0.79" />
 
-        <tech.bloomgenetics.bloomapp.ProjectListView
-            android:id="@+id/project_list_view"
+        <tech.bloomgenetics.bloomapp.CandidateListView
+            android:id="@+id/candidate_list_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="20dp"

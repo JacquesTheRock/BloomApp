@@ -29,8 +29,8 @@ public class CandidateListView extends ListView {
 
     HashMap<String, String> datum = new HashMap<String, String>();
 */
-    ArrayList<Cross> aC = new ArrayList<Cross>();
-    CrossAdapter cA = new CrossAdapter(this.getContext(),aC);
+    ArrayList<Candidate> aCand = new ArrayList<Candidate>();
+    CandidateAdapter candA = new CandidateAdapter(this.getContext(),aCand);
 
     public CandidateListView (Context ctx){
 
@@ -56,7 +56,7 @@ public class CandidateListView extends ListView {
 
     private void init() {
 
-        setAdapter(cA);
+        setAdapter(candA);
 
     }
 
@@ -67,10 +67,10 @@ public class CandidateListView extends ListView {
         TextView mProjectName = (TextView) v.findViewById(R.id.project_name);
         TextView mProjectInfo = (TextView) v.findViewById(R.id.project_info);
 */
-        Cross c = new Cross();
+        Candidate c = new Candidate();
         c.setName(name);
         c.setId(id);
-        cA.add(c);
+        candA.add(c);
     }
 
     class ClickListener implements OnItemClickListener {
@@ -78,7 +78,7 @@ public class CandidateListView extends ListView {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Log.w("Clicked","" + id);
 
-            Intent intent = new Intent(getContext(), CurrentCross.class);
+            Intent intent = new Intent(getContext(), CurrentCandidate.class);
             //startActivity(intent);
         }
     }

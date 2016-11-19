@@ -46,8 +46,9 @@ public class CurrentCross extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     UserProjectSearch projTask;
-    ProjectListView plv;
+    CandidateListView clv;
     JSONObject cross;
+    JSONArray candidates;
 
     // Loads everything that appears on the page when it's loaded.
     @Override
@@ -60,7 +61,7 @@ public class CurrentCross extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        plv = (ProjectListView) findViewById(R.id.project_list_view);
+        clv = (CandidateListView) findViewById(R.id.candidate_list_view);
 
         // Loads the hamburger menu.
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -203,7 +204,7 @@ public class CurrentCross extends AppCompatActivity
 
                 Bundle bundle = getIntent().getExtras();
                 Log.w("Project Info",user.getUsername());
-                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/projects/" + bundle.getInt("proj_id") + "/crosses/" + bundle.getInt("cross_id"));
+                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/projects/" + bundle.getInt("proj_id") + "/crosses/" + bundle.getInt("cross_id") + "/candidates");
                 Log.w("Project ID for Cross:", String.valueOf(bundle.getInt("proj_id")));
                 Log.w("Cross ID for Cross:", String.valueOf(bundle.getInt("cross_id")));
                 HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
@@ -221,9 +222,8 @@ public class CurrentCross extends AppCompatActivity
                     sb.append(line+"\n");
                 }
                 result = sb.toString();
-                Log.w("Look Here for Parents",result);
             } catch (Exception e) {
-                Log.w("Cross Specific Info",e + "");
+                Log.w("Candidate Specific Info",e + "");
             } finally {
             }
             try {
@@ -240,59 +240,58 @@ public class CurrentCross extends AppCompatActivity
         private void confirmToken(String token) {
             //URL apiURL = new URL("http://" + mEmail + ":" + token + "@bloomgenetics.tech/api/v1/auth");
         }
-/* *****
         @Override
         protected void onPostExecute(final Boolean success) {
-            String title = "";
-            String role = "";
-            int proj_id = 0;
+            String name = "";
+            int cand_id = 0;
+            JSONArray traits;
             int i;
 
-            Log.w("Project List: ", crosses.toString());
+            Log.w("Candidate List: ", candidates.toString());
 
             try{
 
                 JSONObject json = null;
 
-                for(i=1; i < crosses.length(); i++){
-                    json = crosses.getJSONObject(i);
+                for(i=1; i < candidates.length(); i++){
+                    json = candidates.getJSONObject(i);
 
-                    proj_id = json.getInt("id");
+                    cand_id = json.getInt("id");
+                    traits = json.getJSONArray("traits");
                     if (json.getString("name").equals("")) {
-                        title = "Project Title";
+                        name = "Candidate Name";
                     }
                     else {
-                        title = json.getString("name");
-                    }
-                    if (json.getString("role").equals("")) {
-                        role = "Member";
-                    }
-                    else {
-                        role = json.getString("role");
+                        name = json.getString("name");
                     }
 
-                    plv.AddItem(title, role, proj_id);
-                    plv.setOnItemClickListener(new ListView.OnItemClickListener() {
+                    clv.AddItem(name, cand_id);
+                    clv.setOnItemClickListener(new ListView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> a, View v, int i, long l) {
 
+                            Bundle bundle = getIntent().getExtras();
                             Intent mainIntent = new Intent(CurrentCross.this, CurrentProject.class);
                             JSONObject selected = null;
-                            int j = plv.aP.get(i).getId();
+                            int j = clv.aCand.get(i).getId();
                             int k;
 
                             Log.w("Project ID: ", String.valueOf(j));
-                            for(k=0; k<crosses.length(); k++) {
+                            for(k=0; k<candidates.length(); k++) {
                                 try {
-                                    selected = crosses.getJSONObject(k);
+                                    selected = candidates.getJSONObject(k);
 
                                     if(selected.getInt("id") == j) {
-                                        mainIntent.putExtra("proj_id", selected.getInt("id"));
-                                        mainIntent.putExtra("proj_title", selected.getString("name"));
-                                        mainIntent.putExtra("proj_description", selected.getString("description"));
-                                        mainIntent.putExtra("proj_type", selected.getString("type"));
-                                        mainIntent.putExtra("proj_species", selected.getString("species"));
-                                        mainIntent.putExtra("proj_location", selected.getString("location"));
+                                        mainIntent.putExtra("proj_id", bundle.getInt("proj_id"));
+                                        mainIntent.putExtra("proj_title", bundle.getString("proj_title"));
+                                        mainIntent.putExtra("proj_description", bundle.getString("proj_description"));
+                                        mainIntent.putExtra("proj_type", bundle.getString("proj_type"));
+                                        mainIntent.putExtra("proj_species", bundle.getString("proj_species"));
+                                        mainIntent.putExtra("proj_location", bundle.getString("proj_location"));
+                                        mainIntent.putExtra("cross_id", bundle.getInt("cross_id"));
+                                        mainIntent.putExtra("cross_name", bundle.getString("cross_name"));
+                                        mainIntent.putExtra("cross_p1", bundle.getInt("cross_p1"));
+                                        mainIntent.putExtra("cross_p2", bundle.getInt("cross_p2"));
                                     }
 
                                 }

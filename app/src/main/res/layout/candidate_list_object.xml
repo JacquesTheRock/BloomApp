@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="80dp">
+    android:layout_height="60dp"
+    android:paddingTop="5dp"
+    android:background="@drawable/border">
 
     <TextView
         android:text="TextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/cand_name" />
+        android:gravity="center"
+        android:id="@+id/cand_name"
+        android:textSize="24sp" />
 
     <LinearLayout
         android:orientation="horizontal"
@@ -16,12 +20,13 @@
 
         <TextView
             android:text="Candidate ID: "
-            android:layout_width="wrap_content"
+            android:layout_width="90dp"
             android:layout_height="wrap_content"
+            android:gravity="right"
             android:layout_weight="1" />
 
         <TextView
-            android:text="TextView"
+            android:text="##"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/cand_id"
