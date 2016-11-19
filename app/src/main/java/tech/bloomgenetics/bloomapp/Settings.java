@@ -42,7 +42,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class Messages extends AppCompatActivity
+public class Settings extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     UserProjectSearch projTask;
@@ -54,7 +54,7 @@ public class Messages extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_messages);
+        setContentView(R.layout.activity_main_page);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -82,7 +82,7 @@ public class Messages extends AppCompatActivity
         mNewProjectButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                goMainPage();
+                goNewProject();
             }
         });
 
@@ -90,23 +90,28 @@ public class Messages extends AppCompatActivity
 
     // Functionality to take user to main page when button is pressed.
     public void goMainPage() {
-        Intent intent = new Intent(Messages.this, MainPage.class);
+        Intent intent = new Intent(Settings.this, MainPage.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
     // Functionality to take user to new project when button is pressed.
+    public void goNewProject() {
+        Intent intent = new Intent(Settings.this, NewProject.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+    }
     public void goMessages() {
-        Intent intent = new Intent(Messages.this, Messages.class);
+        Intent intent = new Intent(Settings.this, Messages.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
     public void goProfile() {
-        Intent intent = new Intent(Messages.this, Profile.class);
+        Intent intent = new Intent(Settings.this, Profile.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
     public void goSettings() {
-        Intent intent = new Intent(Messages.this, Settings.class);
+        Intent intent = new Intent(Settings.this, Settings.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
@@ -189,8 +194,8 @@ public class Messages extends AppCompatActivity
             String result = null;
             try {
 
-                Log.w("Message User",user.getUsername());
-                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/users/" + user.getUsername() + "/mail");
+                Log.w("Project Info",user.getUsername());
+                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/users/" + user.getUsername() + "/projects");
                 HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
                 client.setRequestMethod("GET");
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
@@ -206,9 +211,9 @@ public class Messages extends AppCompatActivity
                     sb.append(line+"\n");
                 }
                 result = sb.toString();
-                Log.w("Message Info",result);
+                Log.w("Project Info",result);
             } catch (Exception e) {
-                Log.w("Message Error",e + "");
+                Log.w("Project Info",e + "");
             } finally {
             }
             try {
@@ -230,10 +235,6 @@ public class Messages extends AppCompatActivity
         protected void onPostExecute(final Boolean success) {
             String title = "";
             String role = "";
-            String location = "";
-            String type = "";
-            String species = "";
-            String description = "";
             int proj_id = 0;
             int i;
 
@@ -265,7 +266,7 @@ public class Messages extends AppCompatActivity
                         @Override
                         public void onItemClick(AdapterView<?> a, View v, int i, long l) {
 
-                            Intent mainIntent = new Intent(Messages.this, CurrentProject.class);
+                            Intent mainIntent = new Intent(Settings.this, CurrentProject.class);
                             JSONObject selected = null;
                             int j = plv.aP.get(i).getId();
                             int k;
@@ -302,6 +303,107 @@ public class Messages extends AppCompatActivity
             }
 
         }
+
+            /*for(i=1; i < projects.length(); i++){
+
+                JSONObject json = null;
+
+                try {
+                    json = projects.getJSONObject(i);
+                    if (json.getString("name").equals("")) {
+                        title = "Project Title";
+                    }
+                    else {
+                        title = json.getString("name");
+                    }
+                    if (json.getString("role").equals("")) {
+                        role = "Member";
+                    }
+                    else {
+                        role = json.getString("role");
+                    }
+                    proj_id = json.getInt("id");
+                    location = json.getString("location");
+                    type = json.getString("type");
+                    species = json.getString("species");
+                    description = json.getString("description");
+
+                    Log.w("Project Title:", title);
+                    Log.w("Project Info", role);
+                }
+                catch (Exception e){
+                    Log.w("Error:", e);
+                }
+                final int finalProj_id = proj_id;
+                final String finalTitle = title;
+                final String finalLocation = location;
+                final String finalType = type;
+                final String finalSpecies = species;
+                final String finalDescription = description;
+
+                Log.w("Passing Proj ID: ", String.valueOf(finalProj_id));
+
+                plv.AddItem(title, role);
+                plv.setOnItemClickListener(new ListView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> a, View v, int i, long l) {
+
+                        Intent mainIntent = new Intent(MainPage.this, CurrentProject.class);
+                        mainIntent.putExtra("proj_id", finalProj_id);
+                        mainIntent.putExtra("proj_name", finalTitle);
+                        mainIntent.putExtra("proj_location", finalLocation);
+                        mainIntent.putExtra("proj_type", finalType);
+                        mainIntent.putExtra("proj_species", finalSpecies);
+                        mainIntent.putExtra("proj_desc", finalDescription);
+                        Log.w("Project: ", finalTitle);
+
+                        startActivity(mainIntent);
+                    }
+                });
+
+            }
+
+        }
+
+        public class OnClickListenerWithProject {
+            private int proj_id;
+            private String proj_title;
+            private String proj_description;
+            private String proj_type;
+            private String proj_species;
+            private String proj_location;
+
+            public OnClickListenerWithProject(int i, String n, String d, String t, String s, String l) {
+
+                this.proj_id = i;
+                this.proj_title = n;
+                this.proj_description = d;
+                this.proj_type = t;
+                this.proj_species = s;
+                this.proj_location = l;
+
+            }
+
+            public void OnClick (View v) {
+
+                Intent activityChangeIntent = new Intent(MainPage.this, CurrentProject.class);
+                activityChangeIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                activityChangeIntent.putExtra("proj_id", proj_id);
+                activityChangeIntent.putExtra("proj_title", proj_title);
+                activityChangeIntent.putExtra("proj_description", proj_description);
+                activityChangeIntent.putExtra("proj_type", proj_type);
+                activityChangeIntent.putExtra("proj_species", proj_species);
+                activityChangeIntent.putExtra("proj_location", proj_location);
+
+                MainPage.this.startActivity(activityChangeIntent);
+
+            }
+
+        }
+/*
+        @Override
+        protected void onCancelled() {
+        } */
 
     }
 

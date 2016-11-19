@@ -149,7 +149,7 @@
 
         </LinearLayout>
         <TextView
-            android:text="(Click to View Cross)"
+            android:text="(Tap to View Cross)"
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:textSize="10dp"
@@ -162,7 +162,8 @@
             style="?android:textAppearanceSmall"
             android:background="#C49671"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="bottom"
             android:text="Add New Cross!"
             android:onClick="goNewCross" />
 

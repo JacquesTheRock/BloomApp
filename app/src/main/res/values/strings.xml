@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BloomApp</string>
+    <string name="app_name">Bloom</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>

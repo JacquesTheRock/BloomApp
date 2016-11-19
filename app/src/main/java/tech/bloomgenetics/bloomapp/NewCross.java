@@ -104,6 +104,16 @@ public class NewCross extends AppCompatActivity
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
+    public void goProfile() {
+        Intent intent = new Intent(NewCross.this, Profile.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+    }
+    public void goSettings() {
+        Intent intent = new Intent(NewCross.this, Settings.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+    }
 
     @Override
     public void onBackPressed() {
@@ -144,16 +154,14 @@ public class NewCross extends AppCompatActivity
         int id = item.getItemId();
 
         // Lists out all the items of the hamburger menu. Each redirects to the appropriate page.
-        if (id == R.id.nav_camera) {
-
-        } else if (id == R.id.nav_profile) {
-
+        if (id == R.id.nav_profile) {
+            goProfile();
         } else if (id == R.id.nav_projects) {
             goProjectPage();
         } else if (id == R.id.nav_messages) {
             goMessages();
         } else if (id == R.id.nav_settings) {
-
+            goSettings();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

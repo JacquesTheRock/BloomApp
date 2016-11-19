@@ -105,6 +105,16 @@ public class MainPage extends AppCompatActivity
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
+    public void goProfile() {
+        Intent intent = new Intent(MainPage.this, Profile.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+    }
+    public void goSettings() {
+        Intent intent = new Intent(MainPage.this, Settings.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+    }
 
     // Closes hamburger menu when back button is pressed.
     @Override
@@ -149,13 +159,13 @@ public class MainPage extends AppCompatActivity
 
         // Lists out all the items of the hamburger menu. Each redirects to the appropriate page.
         if (id == R.id.nav_profile) {
-
+            goProfile();
         } else if (id == R.id.nav_projects) {
             goMainPage();
         } else if (id == R.id.nav_messages) {
             goMessages();
         } else if (id == R.id.nav_settings) {
-
+            goSettings();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
