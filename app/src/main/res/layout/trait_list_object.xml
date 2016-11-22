@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:paddingTop="5dp"
+    android:background="@drawable/border">
+
+    <TextView
+        android:text="Trait Name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:id="@+id/trait_name"
+        android:textSize="24sp" />
+
+    <TextView
+        android:text="###"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:id="@+id/trait_f2"
+        android:textSize="14sp" />
+</LinearLayout>

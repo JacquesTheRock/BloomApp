@@ -16,10 +16,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ListAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,46 +31,32 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-
-public class CurrentCandidate extends AppCompatActivity
+public class NewCandidate extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    CandidateTraitSearch traitTask;
-    TraitListView tlv;
-    JSONObject result_data;
-    JSONArray traits;
+    private CandidateCreateTask createTask;
 
-    // Loads everything that appears on the page when it's loaded.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        Bundle bundle = getIntent().getExtras();
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_current_candidate);
+        setContentView(R.layout.activity_new_candidate);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        tlv = (TraitListView) findViewById(R.id.candidate_traits);
+        Button mCreateProjectButton = (Button) findViewById(R.id.new_cross_create_button);
+        mCreateProjectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goCurrentCross();
+            }
+        });
 
-        // Loads the hamburger menu.
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-        traitTask = new CandidateTraitSearch();
-        traitTask.execute((Void) null);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -78,65 +64,57 @@ public class CurrentCandidate extends AppCompatActivity
         String name = UserAuth.getInstance().getUsername();
         TextView user_field = (TextView) hView.findViewById(R.id.nav_menu_name);
         user_field.setText(name);
+    }
 
-        // Button loaded and made functional.
-/*        Button mNewProjectButton = (Button) findViewById(R.id.new_project_button);
-        mNewProjectButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                goNewProject();
-            }
-        });
-*/
-        TextView candidate_name = (TextView) findViewById(R.id.current_candidate_title);
-        candidate_name.setText(String.valueOf(bundle.getString("candidate_name")));
+    public void goCurrentCross() {
 
-        Log.w("Candidate ID", "" + bundle.getString("candidate_id"));
+        String cross_name = ((EditText) findViewById(R.id.new_cross_name)).getText().toString();
+        int cross_p1 = 0;
+        int cross_p2 = 0;
 
-        /*String[] temp_trait_array = {"Red", "Blue", "Green", "Yellow", "Tall", "Short", "Leafy", "Fleshy", "Spicy", "Sweet", "Bitter", "Big Leaves", "Small Leaves", "Deep Roots", "Shallow Roots"};
-        String[] temp_weights = {"Dominant", "Recessive"};
-        tlv.addItem(temp_trait_array[(int)(Math.random()*4)], temp_weights[(int)(Math.random()*2)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+4], temp_weights[(int)(Math.random()*2)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+6], temp_weights[(int)(Math.random()*2)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*3))+8], temp_weights[(int)(Math.random()*2)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+11], temp_weights[(int)(Math.random()*2)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+13], temp_weights[(int)(Math.random()*2)]);*/
+        if(!((EditText) findViewById(R.id.new_cross_parent1)).getText().toString().equals("")) {
+            cross_p1 = Integer.parseInt(((EditText) findViewById(R.id.new_cross_parent1)).getText().toString());
+        }
+        if(!((EditText) findViewById(R.id.new_cross_parent2)).getText().toString().equals("")) {
+            cross_p2 = Integer.parseInt(((EditText) findViewById(R.id.new_cross_parent2)).getText().toString());
+        }
+
+        if(cross_name.equals("")){
+            EditText cErrorField = (EditText) findViewById(R.id.new_cross_name);
+            cErrorField.setError("Cross name required!");
+        }
+        else {
+            createTask = new CandidateCreateTask(cross_name, cross_p1, cross_p2);
+            createTask.execute((Void) null);
+/*
+            Intent intent = new Intent(this.getBaseContext(), MainPage.class);
+            startActivity(intent);
+            */
+        }
 
     }
 
-    // Functionality to take user to main page when button is pressed.
-    public void goMainPage() {
-        Intent intent = new Intent(CurrentCandidate.this, MainPage.class);
+    public void goProjectPage  () {
+        Intent intent = new Intent(NewCandidate.this, MainPage.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
-
-    // Functionality to take user to new project when button is pressed.
-    public void goNewProject() {
-        Intent intent = new Intent(CurrentCandidate.this, NewProject.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(intent);
-    }
-
     public void goMessages() {
-        Intent intent = new Intent(CurrentCandidate.this, Messages.class);
+        Intent intent = new Intent(NewCandidate.this, Messages.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
-
     public void goProfile() {
-        Intent intent = new Intent(CurrentCandidate.this, Profile.class);
+        Intent intent = new Intent(NewCandidate.this, Profile.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
-
     public void goSettings() {
-        Intent intent = new Intent(CurrentCandidate.this, Settings.class);
+        Intent intent = new Intent(NewCandidate.this, Settings.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
 
-    // Closes hamburger menu when back button is pressed.
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -154,8 +132,6 @@ public class CurrentCandidate extends AppCompatActivity
         return true;
     }
 
-    // Option on right-hand side of banner, will be used as Search function
-    // SETTINGS FLAG
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -181,7 +157,7 @@ public class CurrentCandidate extends AppCompatActivity
         if (id == R.id.nav_profile) {
             goProfile();
         } else if (id == R.id.nav_projects) {
-            goMainPage();
+            goProjectPage();
         } else if (id == R.id.nav_messages) {
             goMessages();
         } else if (id == R.id.nav_settings) {
@@ -193,19 +169,22 @@ public class CurrentCandidate extends AppCompatActivity
         return true;
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class CandidateTraitSearch extends AsyncTask<Void, Void, Boolean> {
 
-        CandidateTraitSearch() {
+    public class CandidateCreateTask extends AsyncTask<Void, Void, Boolean> {
+        String cross_name;
+        int cross_p1;
+        int cross_p2;
+
+        CandidateCreateTask(String n, int p1, int p2) {
+            cross_name = n;
+            cross_p1 = p1;
+            cross_p2 = p2;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-            UserAuth user = UserAuth.getInstance();
+
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -213,18 +192,26 @@ public class CurrentCandidate extends AppCompatActivity
             }
             InputStream ip = null;
             String result = null;
-            try {
 
+            // Sends POST request to server to add new user to database.
+            try {
                 Bundle bundle = getIntent().getExtras();
-                Log.w("Project Info",user.getUsername());
-                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/projects/" + bundle.getInt("proj_id") + "/crosses/" + bundle.getInt("cross_id") + "/candidates/" + Integer.parseInt(bundle.getString("candidate_id")));
+
+                String q = "parent1=" + cross_p1 + "&parent2=" + cross_p2 + "&name=" + cross_name;
+                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/projects/" + bundle.getInt("proj_id") + "/crosses");
                 HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
-                client.setRequestMethod("GET");
+                client.setRequestMethod("POST");
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
-                client.addRequestProperty("charset", "utf-8");
                 byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
                 client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,0));
+                Log.w("Authorization", "Basic " + Base64.encodeToString(ba,0));
+                client.addRequestProperty("charset", "utf-8");
+                client.setRequestProperty("Content-Length", Integer.toString(q.length()));
                 client.setUseCaches(false);
+                client.setDoOutput(true);
+                DataOutputStream op = new DataOutputStream(client.getOutputStream());
+                op.write(q.getBytes());
+                Log.w("Cross Creation", cross_name);
                 ip = new BufferedInputStream(client.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
                 StringBuilder sb = new StringBuilder();
@@ -233,23 +220,14 @@ public class CurrentCandidate extends AppCompatActivity
                     sb.append(line+"\n");
                 }
                 result = sb.toString();
+                Log.w("Cross Creation",result);
             } catch (Exception e) {
-                Log.w("Candidate Specific Info", e + "");
+                Log.w("Cross Creation",e + "");
             } finally {
             }
-            try {
-                JSONObject jRes = new JSONObject(result);
-                Log.w("jRes", "" + jRes);
-                result_data = jRes.getJSONObject("data");
-                Log.w("Candidate Data Array", "" + result_data);
-                traits = result_data.getJSONArray("traits");
-                Log.w("Cndidate Traits Array", "" + traits);
-                //traits = jRes2.getJSONArray("traits");
-                //Log.w("Trait Array", "" + traits);
-            } catch (Exception e) {
-                Log.w("Trait Error", "" + e);
-            }
 
+
+            // TODO: register the new account here.
             return true;
         }
 
@@ -258,33 +236,42 @@ public class CurrentCandidate extends AppCompatActivity
             //URL apiURL = new URL("http://" + mEmail + ":" + token + "@bloomgenetics.tech/api/v1/auth");
         }
 
+        // Upon account creation, user is redirected to Login page to log in using newly created account.
         @Override
         protected void onPostExecute(final Boolean success) {
-            String trait_name = "";
-            String trait_weight = "";
-            int i;
 
-            Log.w("Candidate List: ", traits.toString());
+            Bundle bundle = getIntent().getExtras();
 
-            try {
-
-                JSONObject json = null;
-
-                for (i = 0; i < traits.length(); i++) {
-                    json = traits.getJSONObject(i);
-
-                    trait_name = json.getString("name");
-                    String weight = json.getString("type");
-                    trait_weight = weight.substring(0, 1).toUpperCase() + weight.substring(1);
-                    //traits = json.get("traits");
-                    tlv.addItem(trait_name, trait_weight);
-
-                }
-
-            } catch (Exception e) {
-                Log.w("Error:", e);
+            if (success) {
+                finish();
+                /*
+                Intent intent = new Intent(getBaseContext(), MainPage.class);
+                startActivity(intent);
+                */
+                onBackPressed();
+                Intent intent = new Intent(NewCandidate.this, CurrentProject.class);
+                intent.putExtra("proj_id", bundle.getInt("proj_id"));
+                intent.putExtra("proj_title", bundle.getString("proj_title"));
+                intent.putExtra("proj_description", bundle.getString("proj_description"));
+                intent.putExtra("proj_type", bundle.getString("proj_type"));
+                intent.putExtra("proj_species", bundle.getString("proj_species"));
+                intent.putExtra("proj_location", bundle.getString("proj_location"));
+                intent.putExtra("cross_id", bundle.getInt("cross_id"));
+                intent.putExtra("cross_name", bundle.getString("cross_name"));
+                intent.putExtra("cross_p1", bundle.getInt("cross_p1"));
+                intent.putExtra("cross_p2", bundle.getInt("cross_p2"));
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            } else {
             }
-
         }
+
+        @Override
+        protected void onCancelled() {
+        }
+
+
     }
+
+
 }

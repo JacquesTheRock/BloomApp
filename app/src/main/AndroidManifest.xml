@@ -44,6 +44,10 @@
             android:label="Bloom - Current Project"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".CurrentCandidate"
+            android:label="Bloom - Current Candidate"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".Messages"
             android:label="Bloom - Messages"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -67,6 +71,10 @@
             android:name=".NewCross"
             android:label="Bloom - New Cross"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".NewCandidate"
+            android:label="Bloom - New Candidate"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

@@ -23,6 +23,7 @@ import android.widget.ListView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -32,6 +33,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Random;
 
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -47,7 +49,7 @@ public class CurrentCross extends AppCompatActivity
 
     UserProjectSearch projTask;
     CandidateListView clv;
-    JSONObject cross;
+    TraitListView tlv;
     JSONArray candidates;
 
     // Loads everything that appears on the page when it's loaded.
@@ -62,6 +64,7 @@ public class CurrentCross extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         clv = (CandidateListView) findViewById(R.id.candidate_list_view);
+        tlv = (TraitListView) findViewById(R.id.trait_list_view);
 
         // Loads the hamburger menu.
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -80,19 +83,30 @@ public class CurrentCross extends AppCompatActivity
         user_field.setText(name);
 
         // Button loaded and made functional.
-        Button mNewProjectButton = (Button) findViewById(R.id.new_project_button);
-        mNewProjectButton.setOnClickListener(new OnClickListener() {
+        Button mNewCandidateButton = (Button) findViewById(R.id.new_candidate_button);
+        mNewCandidateButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                goNewProject();
+                goNewCandidate();
             }
         });
 
+        TextView cross_name = (TextView)findViewById(R.id.current_cross_title);
         TextView p1_id = (TextView)findViewById(R.id.cross_p1_id);
         TextView p2_id = (TextView)findViewById(R.id.cross_p2_id);
 
+        cross_name.setText(String.valueOf(bundle.getString("cross_name")));
         p1_id.setText(String.valueOf(bundle.getInt("cross_p1")));
         p2_id.setText(String.valueOf(bundle.getInt("cross_p2")));
+
+        String[] temp_trait_array = {"Red", "Blue", "Green", "Yellow", "Tall", "Short", "Leafy", "Fleshy", "Spicy", "Sweet", "Bitter", "Big Leaves", "Small Leaves", "Deep Roots", "Shallow Roots"};
+        String[] temp_percentages = {"0%", "25%", "50%", "75%", "100%"};
+        tlv.addItem(temp_trait_array[(int)(Math.random()*4)], temp_percentages[(int)(Math.random()*5)]);
+        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+4], temp_percentages[(int)(Math.random()*5)]);
+        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+6], temp_percentages[(int)(Math.random()*5)]);
+        tlv.addItem(temp_trait_array[((int)(Math.random()*3))+8], temp_percentages[(int)(Math.random()*5)]);
+        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+11], temp_percentages[(int)(Math.random()*5)]);
+        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+13], temp_percentages[(int)(Math.random()*5)]);
 
     }
 
@@ -103,8 +117,20 @@ public class CurrentCross extends AppCompatActivity
         startActivity(intent);
     }
     // Functionality to take user to new project when button is pressed.
-    public void goNewProject() {
-        Intent intent = new Intent(CurrentCross.this, NewProject.class);
+    public void goNewCandidate() {
+        Bundle bundle = getIntent().getExtras();
+
+        Intent intent = new Intent(CurrentCross.this, NewCandidate.class);
+        intent.putExtra("proj_id", bundle.getInt("proj_id"));
+        intent.putExtra("proj_title", bundle.getString("proj_title"));
+        intent.putExtra("proj_description", bundle.getString("proj_description"));
+        intent.putExtra("proj_type", bundle.getString("proj_type"));
+        intent.putExtra("proj_species", bundle.getString("proj_species"));
+        intent.putExtra("proj_location", bundle.getString("proj_location"));
+        intent.putExtra("cross_id", bundle.getInt("cross_id"));
+        intent.putExtra("cross_name", bundle.getString("cross_name"));
+        intent.putExtra("cross_p1", bundle.getInt("cross_p1"));
+        intent.putExtra("cross_p2", bundle.getInt("cross_p2"));
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
@@ -228,7 +254,9 @@ public class CurrentCross extends AppCompatActivity
             }
             try {
                 JSONObject jRes = new JSONObject(result);
-                cross = jRes.getJSONObject("data");
+                Log.w("jRes", "" + jRes);
+                candidates = jRes.getJSONArray("data");
+                Log.w("Candidate Data", "" + candidates);
             } catch(Exception e) {
 
             }
@@ -256,22 +284,28 @@ public class CurrentCross extends AppCompatActivity
                 for(i=1; i < candidates.length(); i++){
                     json = candidates.getJSONObject(i);
 
+                    Log.w("Candidate Info", "" + json);
+
                     cand_id = json.getInt("id");
-                    traits = json.getJSONArray("traits");
-                    if (json.getString("name").equals("")) {
-                        name = "Candidate Name";
+                    name = "Candidate #" + cand_id;
+                    if(json.get("traits").equals(null)){
+                        traits = new JSONArray();
                     }
-                    else {
-                        name = json.getString("name");
+                    else{
+                        traits = json.getJSONArray("traits");
                     }
 
                     clv.AddItem(name, cand_id);
+                    final String n = name;
+                    final int id = cand_id;
+                    final String t = traits.toString();
+                    Log.w("Candidate Traits", t);
                     clv.setOnItemClickListener(new ListView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> a, View v, int i, long l) {
 
                             Bundle bundle = getIntent().getExtras();
-                            Intent mainIntent = new Intent(CurrentCross.this, CurrentProject.class);
+                            Intent mainIntent = new Intent(CurrentCross.this, CurrentCandidate.class);
                             JSONObject selected = null;
                             int j = clv.aCand.get(i).getId();
                             int k;
@@ -292,6 +326,9 @@ public class CurrentCross extends AppCompatActivity
                                         mainIntent.putExtra("cross_name", bundle.getString("cross_name"));
                                         mainIntent.putExtra("cross_p1", bundle.getInt("cross_p1"));
                                         mainIntent.putExtra("cross_p2", bundle.getInt("cross_p2"));
+                                        mainIntent.putExtra("candidate_name", "Candidate #" + selected.getInt("id"));
+                                        mainIntent.putExtra("candidate_id", String.valueOf(selected.getInt("id")));
+                                        mainIntent.putExtra("candidate_traits", String.valueOf(selected.get("traits")));
                                     }
 
                                 }

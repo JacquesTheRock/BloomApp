@@ -16,11 +16,12 @@
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"
+        android:background="#71D16D"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_add_candidate"
-        app:menu="@menu/activity_add_candidate_drawer" />
+        app:headerLayout="@layout/nav_header_main_page"
+        app:menu="@menu/activity_main_page_drawer" />
 
 </android.support.v4.widget.DrawerLayout>
