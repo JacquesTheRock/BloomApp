@@ -10,8 +10,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.io.BufferedInputStream;
@@ -21,8 +24,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
-public class CreateAccount extends AppCompatActivity {
+public class CreateAccount extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private AccountCreateTask createTask;
     View focusView = null;
@@ -33,6 +38,9 @@ public class CreateAccount extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        addItemsToSpinner();
+        addListenerOnSpinnerItemSelection();
+
         Button mLoginButton = (Button) findViewById(R.id.login_redirect_button);
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -40,6 +48,48 @@ public class CreateAccount extends AppCompatActivity {
                 goLogin();
             }
         });
+    }
+
+    public void addItemsToSpinner() {
+        Spinner spinner = (Spinner) findViewById(R.id.create_growzone_spinner);
+
+        List<String> growzones = new ArrayList<String>();
+        growzones.add("Grow Zone (Optional)");
+        growzones.add("1a");
+        growzones.add("1b");
+        growzones.add("2a");
+        growzones.add("2b");
+        growzones.add("3a");
+        growzones.add("3b");
+        growzones.add("4a");
+        growzones.add("4b");
+        growzones.add("5a");
+        growzones.add("5b");
+        growzones.add("6a");
+        growzones.add("6b");
+        growzones.add("7a");
+        growzones.add("7b");
+        growzones.add("8a");
+        growzones.add("8b");
+        growzones.add("9a");
+        growzones.add("9b");
+        growzones.add("10a");
+        growzones.add("10b");
+        growzones.add("11a");
+        growzones.add("11b");
+        growzones.add("12a");
+        growzones.add("12b");
+        growzones.add("13a");
+        growzones.add("13b");
+
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, growzones);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerAdapter);
+    }
+
+    public void addListenerOnSpinnerItemSelection() {
+        Spinner spinner = (Spinner) findViewById(R.id.create_growzone_spinner);
+        spinner.setOnItemSelectedListener(new CustomOnItemSelectedListener());
     }
 
     /* Redirects user to Login when login button is clicked */
@@ -50,14 +100,25 @@ public class CreateAccount extends AppCompatActivity {
         String password  = ((EditText) findViewById(R.id.create_password)).getText().toString();
         String cPassword  = ((EditText) findViewById(R.id.create_confirm_password)).getText().toString();
         String address = ((EditText) findViewById(R.id.create_address)).getText().toString();
+        String growzone = ((Spinner) findViewById(R.id.create_growzone_spinner)).getSelectedItem().toString();
         if(password.equals(cPassword)){
-            createTask = new AccountCreateTask(email, password, uid, name, address);
+            createTask = new AccountCreateTask(email, password, uid, name, address, growzone);
             createTask.execute((Void) null);
         }
         else {
             EditText cPasswordField = (EditText) findViewById(R.id.create_confirm_password);
             cPasswordField.setError("Passwords do not match!");
         }
+
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
 
     }
 
@@ -71,21 +132,31 @@ public class CreateAccount extends AppCompatActivity {
         String name;// = ((EditText) findViewById(R.id.create_name)).getText().toString();
         String password;//  = ((EditText) findViewById(R.id.create_password)).getText().toString();
         String address;// = ((EditText) findViewById(R.id.create_address)).getText().toString();
+        String growzone;
 
-        AccountCreateTask(String e, String p, String u, String n, String a) {
+        AccountCreateTask(String e, String p, String u, String n, String a, String g) {
             email = e;
             password = p;
             uid = u;
             name = n;
             address = a;
+            growzone = g;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
 
+            if(address.equals("")){
+                address = "Nowhere";
+            }
+            if(name.equals("Grow Zone (Optional)")){
+                growzone = "Not Given";
+            }
+            if(growzone.equals("Grow Zone (Optional)")){
+                growzone = "Undisclosed";
+            }
             try {
-                Thread.sleep(2000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 return false;
             }
@@ -94,7 +165,7 @@ public class CreateAccount extends AppCompatActivity {
 
             // Sends POST request to server to add new user to database.
             try {
-                String q = "username=" + uid + "&email=" + email + "&password=" + password + "&name=" + name;
+                String q = "username=" + uid + "&email=" + email + "&password=" + password + "&name=" + name + "&location=" + address + "&growzone=" + growzone + "&season=" + "All" + "&specialty=" + "None" + "&about=" + ". . .";
                 URL apiURL = new URL("http://bloomgenetics.tech/api/v1/users");
                 HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
                 client.setRequestMethod("POST");

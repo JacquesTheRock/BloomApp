@@ -158,15 +158,15 @@ public class MainPage extends AppCompatActivity
         int id = item.getItemId();
 
         // Lists out all the items of the hamburger menu. Each redirects to the appropriate page.
-        if (id == R.id.nav_profile) {
-            goProfile();
-        } else if (id == R.id.nav_projects) {
+        if (id == R.id.nav_projects) {
             goMainPage();
+        } /*else if (id == R.id.nav_profile) {
+            goProfile();
         } else if (id == R.id.nav_messages) {
             goMessages();
         } else if (id == R.id.nav_settings) {
             goSettings();
-        }
+        }*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -201,7 +201,7 @@ public class MainPage extends AppCompatActivity
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                 client.addRequestProperty("charset", "utf-8");
                 byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
-                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,0));
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
                 client.setUseCaches(false);
                 ip = new BufferedInputStream(client.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
@@ -238,12 +238,11 @@ public class MainPage extends AppCompatActivity
             int proj_id = 0;
             int i;
 
-            Log.w("Project List: ", projects.toString());
-
             try{
 
                 JSONObject json = null;
-
+                if(projects == null || projects.length() < 2)
+                    return;
                 for(i=1; i < projects.length(); i++){
                     json = projects.getJSONObject(i);
 
@@ -253,6 +252,9 @@ public class MainPage extends AppCompatActivity
                     }
                     else {
                         title = json.getString("name");
+                        if (title.length() > 17){
+                            title = title.substring(0, 17) + "...";
+                        }
                     }
                     if (json.getString("role").equals("")) {
                         role = "Member";

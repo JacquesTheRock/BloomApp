@@ -17,7 +17,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#C49671"
+            android:background="#333333"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
@@ -39,7 +39,8 @@
         <Button
             android:id="@+id/new_project_button"
             style="?android:textAppearanceSmall"
-            android:background="#C49671"
+            android:background="#4C4C4C"
+            android:textColor="#FFFFFF"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="New Project"

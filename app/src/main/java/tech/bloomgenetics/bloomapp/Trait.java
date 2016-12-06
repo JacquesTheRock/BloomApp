@@ -6,7 +6,9 @@ package tech.bloomgenetics.bloomapp;
 
 public class Trait {
 
-    private String field2;
+    private String dr;
+    private String carrier;
+    private String shower;
     private String name;
     private int id;
 
@@ -18,12 +20,28 @@ public class Trait {
         this.name = name;
     }
 
-    public String getField2() {
-        return field2;
+    public String getDR() {
+        return dr;
     }
 
-    public void setField2(String field2) {
-        this.field2 = field2;
+    public void setDR(String dr) {
+        this.dr = dr;
+    }
+
+    public String getCarrier() {
+        return carrier;
+    }
+
+    public void setCarrier(String c) {
+        carrier = c;
+    }
+
+    public String getShower() {
+        return shower;
+    }
+
+    public void setShower(String s) {
+        shower = s;
     }
 
     public int getId() {
@@ -32,6 +50,13 @@ public class Trait {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String toString() {
+        String out = "{";
+        out += "\"id\": " + getId();
+        out += "}";
+        return out;
     }
 
 }

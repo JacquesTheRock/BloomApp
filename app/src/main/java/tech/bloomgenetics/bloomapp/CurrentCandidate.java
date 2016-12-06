@@ -48,7 +48,7 @@ public class CurrentCandidate extends AppCompatActivity
     CandidateTraitSearch traitTask;
     TraitListView tlv;
     JSONObject result_data;
-    JSONArray traits;
+    JSONArray traits = null;
 
     // Loads everything that appears on the page when it's loaded.
     @Override
@@ -178,15 +178,15 @@ public class CurrentCandidate extends AppCompatActivity
         int id = item.getItemId();
 
         // Lists out all the items of the hamburger menu. Each redirects to the appropriate page.
-        if (id == R.id.nav_profile) {
-            goProfile();
-        } else if (id == R.id.nav_projects) {
+        if (id == R.id.nav_projects) {
             goMainPage();
+        } /*else if (id == R.id.nav_profile) {
+            goProfile();
         } else if (id == R.id.nav_messages) {
             goMessages();
         } else if (id == R.id.nav_settings) {
             goSettings();
-        }
+        }*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -223,7 +223,7 @@ public class CurrentCandidate extends AppCompatActivity
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                 client.addRequestProperty("charset", "utf-8");
                 byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
-                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,0));
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
                 client.setUseCaches(false);
                 ip = new BufferedInputStream(client.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
@@ -242,8 +242,10 @@ public class CurrentCandidate extends AppCompatActivity
                 Log.w("jRes", "" + jRes);
                 result_data = jRes.getJSONObject("data");
                 Log.w("Candidate Data Array", "" + result_data);
-                traits = result_data.getJSONArray("traits");
-                Log.w("Cndidate Traits Array", "" + traits);
+                if(result_data != null) {
+                    traits = result_data.getJSONArray("traits");
+                    Log.w("Cndidate Traits Array", "" + traits);
+                }
                 //traits = jRes2.getJSONArray("traits");
                 //Log.w("Trait Array", "" + traits);
             } catch (Exception e) {
@@ -264,21 +266,22 @@ public class CurrentCandidate extends AppCompatActivity
             String trait_weight = "";
             int i;
 
-            Log.w("Candidate List: ", traits.toString());
-
             try {
 
                 JSONObject json = null;
 
-                for (i = 0; i < traits.length(); i++) {
-                    json = traits.getJSONObject(i);
+                if(traits != null) {
 
-                    trait_name = json.getString("name");
-                    String weight = json.getString("type");
-                    trait_weight = weight.substring(0, 1).toUpperCase() + weight.substring(1);
-                    //traits = json.get("traits");
-                    tlv.addItem(trait_name, trait_weight);
+                    for (i = 0; i < traits.length(); i++) {
+                        json = traits.getJSONObject(i);
 
+                        trait_name = json.getString("name");
+                        String weight = json.getString("type");
+                        trait_weight = weight.substring(0, 1).toUpperCase() + weight.substring(1);
+                        //traits = json.get("traits");
+                        tlv.addItem(trait_name, trait_weight);
+
+                    }
                 }
 
             } catch (Exception e) {

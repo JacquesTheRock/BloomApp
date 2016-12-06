@@ -32,6 +32,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -48,9 +50,13 @@ public class CurrentCross extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     UserProjectSearch projTask;
+    ParentTraitSearch traitSearch;
     CandidateListView clv;
-    TraitListView tlv;
+    TraitListView2 tlv;
     JSONArray candidates;
+    JSONArray traits = null;
+    JSONObject trait_info = null;
+    JSONObject punnet_info = null;
 
     // Loads everything that appears on the page when it's loaded.
     @Override
@@ -64,7 +70,7 @@ public class CurrentCross extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         clv = (CandidateListView) findViewById(R.id.candidate_list_view);
-        tlv = (TraitListView) findViewById(R.id.trait_list_view);
+        tlv = (TraitListView2) findViewById(R.id.trait_list_view);
 
         // Loads the hamburger menu.
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -74,6 +80,8 @@ public class CurrentCross extends AppCompatActivity
         toggle.syncState();
         projTask = new UserProjectSearch();
         projTask.execute((Void)null);
+        traitSearch = new ParentTraitSearch();
+        traitSearch.execute((Void)null);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -98,15 +106,6 @@ public class CurrentCross extends AppCompatActivity
         cross_name.setText(String.valueOf(bundle.getString("cross_name")));
         p1_id.setText(String.valueOf(bundle.getInt("cross_p1")));
         p2_id.setText(String.valueOf(bundle.getInt("cross_p2")));
-
-        String[] temp_trait_array = {"Red", "Blue", "Green", "Yellow", "Tall", "Short", "Leafy", "Fleshy", "Spicy", "Sweet", "Bitter", "Big Leaves", "Small Leaves", "Deep Roots", "Shallow Roots"};
-        String[] temp_percentages = {"0%", "25%", "50%", "75%", "100%"};
-        tlv.addItem(temp_trait_array[(int)(Math.random()*4)], temp_percentages[(int)(Math.random()*5)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+4], temp_percentages[(int)(Math.random()*5)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+6], temp_percentages[(int)(Math.random()*5)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*3))+8], temp_percentages[(int)(Math.random()*5)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+11], temp_percentages[(int)(Math.random()*5)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+13], temp_percentages[(int)(Math.random()*5)]);
 
     }
 
@@ -192,15 +191,15 @@ public class CurrentCross extends AppCompatActivity
         int id = item.getItemId();
 
         // Lists out all the items of the hamburger menu. Each redirects to the appropriate page.
-        if (id == R.id.nav_profile) {
-            goProfile();
-        } else if (id == R.id.nav_projects) {
+        if (id == R.id.nav_projects) {
             goMainPage();
+        } /*else if (id == R.id.nav_profile) {
+            goProfile();
         } else if (id == R.id.nav_messages) {
             goMessages();
         } else if (id == R.id.nav_settings) {
             goSettings();
-        }
+        }*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -229,7 +228,7 @@ public class CurrentCross extends AppCompatActivity
             try {
 
                 Bundle bundle = getIntent().getExtras();
-                Log.w("Project Info",user.getUsername());
+                Log.w("Project Info", user.getUsername());
                 URL apiURL = new URL("http://bloomgenetics.tech/api/v1/projects/" + bundle.getInt("proj_id") + "/crosses/" + bundle.getInt("cross_id") + "/candidates");
                 Log.w("Project ID for Cross:", String.valueOf(bundle.getInt("proj_id")));
                 Log.w("Cross ID for Cross:", String.valueOf(bundle.getInt("cross_id")));
@@ -238,7 +237,144 @@ public class CurrentCross extends AppCompatActivity
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                 client.addRequestProperty("charset", "utf-8");
                 byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
-                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,0));
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba, Base64.NO_WRAP));
+                client.setUseCaches(false);
+                ip = new BufferedInputStream(client.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ip, "UTF-8"), 8);
+                StringBuilder sb = new StringBuilder();
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line + "\n");
+                }
+                result = sb.toString();
+            } catch (Exception e) {
+                Log.w("Candidate Specific Info", e + "");
+            } finally {
+            }
+            try {
+                JSONObject jRes = new JSONObject(result);
+                Log.w("jRes", "" + jRes);
+                candidates = jRes.getJSONArray("data");
+                Log.w("Candidate Data", "" + candidates);
+            } catch (Exception e) {
+
+            }
+
+            return true;
+        }
+
+        // Checks to see if user token is same as last time to avoid having to log in every time.
+        private void confirmToken(String token) {
+            //URL apiURL = new URL("http://" + mEmail + ":" + token + "@bloomgenetics.tech/api/v1/auth");
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            String name = "";
+            int cand_id = 0;
+            JSONArray traits;
+            int i;
+
+            Log.w("Candidate List: ", candidates.toString());
+
+            try {
+
+                JSONObject json = null;
+
+                for (i = 0; i < candidates.length(); i++) {
+                    json = candidates.getJSONObject(i);
+
+                    Log.w("Candidate Info", "" + json);
+
+                    cand_id = json.getInt("id");
+                    name = "Candidate #" + cand_id;
+                    if (json.get("traits").equals(null)) {
+                        traits = new JSONArray();
+                    } else {
+                        traits = json.getJSONArray("traits");
+                    }
+
+                    clv.AddItem(name, cand_id);
+                    final String n = name;
+                    final int id = cand_id;
+                    final String t = traits.toString();
+                    Log.w("Candidate Traits", t);
+                    clv.setOnItemClickListener(new ListView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> a, View v, int i, long l) {
+
+                            Bundle bundle = getIntent().getExtras();
+                            Intent mainIntent = new Intent(CurrentCross.this, CurrentCandidate.class);
+                            JSONObject selected = null;
+                            int j = clv.aCand.get(i).getId();
+                            int k;
+
+                            Log.w("Project ID: ", String.valueOf(j));
+                            for (k = 0; k < candidates.length(); k++) {
+                                try {
+                                    selected = candidates.getJSONObject(k);
+
+                                    if (selected.getInt("id") == j) {
+                                        mainIntent.putExtra("proj_id", bundle.getInt("proj_id"));
+                                        mainIntent.putExtra("proj_title", bundle.getString("proj_title"));
+                                        mainIntent.putExtra("proj_description", bundle.getString("proj_description"));
+                                        mainIntent.putExtra("proj_type", bundle.getString("proj_type"));
+                                        mainIntent.putExtra("proj_species", bundle.getString("proj_species"));
+                                        mainIntent.putExtra("proj_location", bundle.getString("proj_location"));
+                                        mainIntent.putExtra("cross_id", bundle.getInt("cross_id"));
+                                        mainIntent.putExtra("cross_name", bundle.getString("cross_name"));
+                                        mainIntent.putExtra("cross_p1", bundle.getInt("cross_p1"));
+                                        mainIntent.putExtra("cross_p2", bundle.getInt("cross_p2"));
+                                        mainIntent.putExtra("candidate_name", "Candidate #" + selected.getInt("id"));
+                                        mainIntent.putExtra("candidate_id", String.valueOf(selected.getInt("id")));
+                                        mainIntent.putExtra("candidate_traits", String.valueOf(selected.get("traits")));
+                                    }
+
+                                } catch (Exception e) {
+                                    Log.w("Error: ", e);
+                                }
+                            }
+
+                            startActivity(mainIntent);
+                        }
+                    });
+
+                }
+
+            } catch (Exception e) {
+                Log.w("Error:", e);
+            }
+
+        }
+    }
+
+    public class ParentTraitSearch extends AsyncTask<Void, Void, Boolean> {
+
+        ParentTraitSearch() {
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            // TODO: attempt authentication against a network service.
+            UserAuth user = UserAuth.getInstance();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                return false;
+            }
+            InputStream ip = null;
+            String result = null;
+            try {
+
+                Bundle bundle = getIntent().getExtras();
+                Log.w("Project Info",user.getUsername());
+                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/projects/" + bundle.getInt("proj_id") + "/crosses/" + bundle.getInt("cross_id") + "/punnet");
+                HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
+                client.setRequestMethod("GET");
+                client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
+                client.addRequestProperty("charset", "utf-8");
+                byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
                 client.setUseCaches(false);
                 ip = new BufferedInputStream(client.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
@@ -248,15 +384,14 @@ public class CurrentCross extends AppCompatActivity
                     sb.append(line+"\n");
                 }
                 result = sb.toString();
+                Log.w("Cross #694",result);
             } catch (Exception e) {
-                Log.w("Candidate Specific Info",e + "");
+                Log.w("Cross Error #394",e + "");
             } finally {
             }
             try {
                 JSONObject jRes = new JSONObject(result);
-                Log.w("jRes", "" + jRes);
-                candidates = jRes.getJSONArray("data");
-                Log.w("Candidate Data", "" + candidates);
+                traits = jRes.getJSONArray("data");
             } catch(Exception e) {
 
             }
@@ -270,6 +405,44 @@ public class CurrentCross extends AppCompatActivity
         }
         @Override
         protected void onPostExecute(final Boolean success) {
+            String trait_name = "";
+            String dr = "";
+            int trait_carry;
+            int trait_show;
+            int trait_count;
+            String trait_c_odds = "";
+            String trait_x_odds = "";
+            int i;
+
+            try {
+
+                NumberFormat formatter = new DecimalFormat("#0.0%");
+                    for (i = 0; i < traits.length(); i++) {
+
+
+                        punnet_info = traits.getJSONObject(i);
+                        trait_info = punnet_info.getJSONObject("trait");
+
+                        trait_name = trait_info.getString("name");
+                        dr = trait_info.getString("type").substring(0, 1).toUpperCase() + trait_info.getString("type").substring(1);
+
+                        trait_carry = punnet_info.getInt("carry");
+                        trait_show = punnet_info.getInt("show");
+                        trait_count = punnet_info.getInt("count");
+
+                        trait_c_odds = formatter.format(((double)trait_carry/(double)trait_count));
+                        trait_x_odds = formatter.format(((double)trait_show/(double)trait_count));
+
+                        tlv.addItem2(trait_name, dr, trait_c_odds, trait_x_odds);
+
+                    }
+
+            } catch (Exception e) {
+                Log.w("Error:", e);
+            }
+
+        }
+        /*protected void onPostExecute(final Boolean success) {
             String name = "";
             int cand_id = 0;
             JSONArray traits;
@@ -348,8 +521,7 @@ public class CurrentCross extends AppCompatActivity
                 Log.w("Error:", e);
             }
 
-        }
-
+        } */
             /*for(i=1; i < projects.length(); i++){
 
                 JSONObject json = null;

@@ -16,7 +16,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#C49671"
+            android:background="#333333"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
@@ -50,7 +50,7 @@
                 android:layout_height="100dp"
                 android:padding="10dp"
                 android:layout_marginLeft="10dp"
-                android:background="@drawable/border">
+                android:background="@drawable/paper_border">
 
                 <TextView
                     android:text="Parent 1"
@@ -84,7 +84,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginRight="10dp"
                 android:padding="10dp"
-                android:background="@drawable/border">
+                android:background="@drawable/paper_border">
 
                 <TextView
                     android:text="Parent 2"
@@ -122,7 +122,7 @@
             android:layout_marginRight="10dp"
             android:textSize="18sp" />
 
-        <tech.bloomgenetics.bloomapp.TraitListView
+        <tech.bloomgenetics.bloomapp.TraitListView2
             android:id="@+id/trait_list_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -154,7 +154,8 @@
         <Button
             android:id="@+id/new_candidate_button"
             style="?android:textAppearanceSmall"
-            android:background="#C49671"
+            android:background="#4C4C4C"
+            android:textColor="#FFFFFF"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:text="New Candidate"

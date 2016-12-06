@@ -2,7 +2,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#71D16D"
+    android:background="@drawable/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -117,22 +117,21 @@
             android:background="#FFFFFF"
             android:id="@+id/create_address" />
 
-        <EditText
+        <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:layout_marginTop="10dp"
             android:hint="Grow Zone (Optional)"
-            android:ems="10"
             android:background="#FFFFFF"
-            android:id="@+id/create_growzone" />
+            android:id="@+id/create_growzone_spinner" />
 
         <Button
             android:id="@+id/login_redirect_button"
             style="?android:textAppearanceSmall"
-            android:background="#C49671"
+            android:background="#4C4C4C"
+            android:textColor="#FFFFFF"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:layout_width="match_parent"

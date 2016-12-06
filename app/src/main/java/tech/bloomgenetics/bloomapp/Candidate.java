@@ -35,4 +35,22 @@ public class Candidate {
         public int[] getTraits() {
         return traits;
     }
+
+        public String toString() {
+            String out = "{";
+            out += "\"id\": " + getId() + ",";
+            out += "\"traits\": [";
+            for (int i = 0; i < traits.length; i++) {
+                Trait t = new Trait();
+                t.setId(traits[i]);
+                if (i > 0)
+                    out += ", " + t.toString();
+                else
+                    out += t.toString();
+            }
+            out += "]";
+
+            out += "}";
+            return out;
+        }
 }

@@ -95,11 +95,6 @@ public class NewProject extends AppCompatActivity
 
     }
 
-    public void goProjectPage  () {
-        Intent intent = new Intent(NewProject.this, MainPage.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(intent);
-    }
     public void goMessages() {
         Intent intent = new Intent(NewProject.this, Messages.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -155,15 +150,15 @@ public class NewProject extends AppCompatActivity
         int id = item.getItemId();
 
         // Lists out all the items of the hamburger menu. Each redirects to the appropriate page.
-        if (id == R.id.nav_profile) {
+        if (id == R.id.nav_projects) {
+            goMainPage();
+        } /*else if (id == R.id.nav_profile) {
             goProfile();
-        } else if (id == R.id.nav_projects) {
-            goProjectPage();
         } else if (id == R.id.nav_messages) {
             goMessages();
         } else if (id == R.id.nav_settings) {
             goSettings();
-        }
+        }*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -206,15 +201,15 @@ public class NewProject extends AppCompatActivity
                 client.setRequestMethod("POST");
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                 byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
-                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,0));
-                Log.w("Authorization", "Basic " + Base64.encodeToString(ba,0));
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
+                Log.w("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
                 client.addRequestProperty("charset", "utf-8");
                 client.setRequestProperty("Content-Length", Integer.toString(q.length()));
                 client.setUseCaches(false);
                 client.setDoOutput(true);
                 DataOutputStream op = new DataOutputStream(client.getOutputStream());
                 op.write(q.getBytes());
-                Log.w("Project Creation",proj_name);
+                Log.w("Project Creation","Name - " + proj_name);
                 ip = new BufferedInputStream(client.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
                 StringBuilder sb = new StringBuilder();

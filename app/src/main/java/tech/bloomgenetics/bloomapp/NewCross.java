@@ -16,9 +16,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -31,11 +33,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NewCross extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private CrossCreateTask createTask;
+    private CandidateGetTask candGet;
+    public JSONArray candidates = null;
+    public List<String> cands_in_project = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,11 +67,40 @@ public class NewCross extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        //candGet = new CandidateGetTask();
+        //candGet.execute((Void) null);
+
+        /*addItemsToSpinner1();
+        addListenerOnSpinner1ItemSelection();
+
+        addItemsToSpinner2();
+        addListenerOnSpinner2ItemSelection();*/
+
         View hView = navigationView.getHeaderView(0);
         String name = UserAuth.getInstance().getUsername();
         TextView user_field = (TextView) hView.findViewById(R.id.nav_menu_name);
         user_field.setText(name);
     }
+
+    /*public void addItemsToSpinner1() {
+        Spinner spinner = (Spinner) findViewById(R.id.new_cross_spinner_parent1);
+
+        List<String> parents = new ArrayList<String>();
+        int i;
+        parents.add("Parent #1 (Optional)");
+        for(i=0; i<cands_in_project.size(); i++){
+            parents.add("Candidate #" + i);
+        }
+
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, parents);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerAdapter);
+    }
+
+    public void addListenerOnSpinner1ItemSelection() {
+        Spinner spinner = (Spinner) findViewById(R.id.new_cross_spinner_parent1);
+        spinner.setOnItemSelectedListener(new CustomOnItemSelectedListener());
+    }*/
 
     public void goCurrentProject() {
 
@@ -94,7 +130,7 @@ public class NewCross extends AppCompatActivity
 
     }
 
-    public void goProjectPage  () {
+    public void goMainPage  () {
         Intent intent = new Intent(NewCross.this, MainPage.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
@@ -154,21 +190,103 @@ public class NewCross extends AppCompatActivity
         int id = item.getItemId();
 
         // Lists out all the items of the hamburger menu. Each redirects to the appropriate page.
-        if (id == R.id.nav_profile) {
+        if (id == R.id.nav_projects) {
+            goMainPage();
+        } /*else if (id == R.id.nav_profile) {
             goProfile();
-        } else if (id == R.id.nav_projects) {
-            goProjectPage();
         } else if (id == R.id.nav_messages) {
             goMessages();
         } else if (id == R.id.nav_settings) {
             goSettings();
-        }
+        }*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+    public class CandidateGetTask extends AsyncTask<Void, Void, Boolean> {
+
+        CandidateGetTask() {
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+
+            UserAuth user = UserAuth.getInstance();
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                return false;
+            }
+            InputStream ip = null;
+            String result = "";
+            try {
+
+                Bundle bundle = getIntent().getExtras();
+                Log.w("Cross Info", String.valueOf(bundle.getInt("proj_id")));
+                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/projects/" + bundle.getInt("proj_id") + "/candidates");
+                HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
+                client.setRequestMethod("GET");
+                client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
+                client.addRequestProperty("charset", "utf-8");
+                byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
+                client.setUseCaches(false);
+                ip = new BufferedInputStream(client.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ip, "UTF-8"), 8);
+                StringBuilder sb = new StringBuilder();
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line + "\n");
+                }
+                result = sb.toString();
+                Log.w("Traits in Project", result);
+            } catch (Exception e) {
+                Log.w("GetTraits Error", e + "");
+            } finally {
+            }
+            try {
+                JSONObject jRes = new JSONObject(result);
+                candidates = jRes.getJSONArray("data");
+            } catch (Exception e) {
+
+            }
+
+            return true;
+        }
+
+        // Checks to see if user token is same as last time to avoid having to log in every time.
+        private void confirmToken(String token) {
+            //URL apiURL = new URL("http://" + mEmail + ":" + token + "@bloomgenetics.tech/api/v1/auth");
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            String cand_id = "";
+
+            try {
+
+                JSONObject json = null;
+                int i;
+
+                if (candidates != null) {
+                    for (i = 0; i < candidates.length(); i++) {
+                        json = candidates.getJSONObject(i);
+
+                        cand_id = json.getString("id");
+
+                        cands_in_project.add(cand_id);
+
+                    }
+                    Log.w("List of Candidates", "" + cands_in_project);
+                }
+            } catch (Exception e) {
+                Log.w("Error:", e);
+            }
+
+        }
+    }
 
     public class CrossCreateTask extends AsyncTask<Void, Void, Boolean> {
         String cross_name;
@@ -183,7 +301,6 @@ public class NewCross extends AppCompatActivity
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
 
             try {
                 Thread.sleep(500);
@@ -203,7 +320,7 @@ public class NewCross extends AppCompatActivity
                 client.setRequestMethod("POST");
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                 byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
-                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,0));
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
                 Log.w("Authorization", "Basic " + Base64.encodeToString(ba,0));
                 client.addRequestProperty("charset", "utf-8");
                 client.setRequestProperty("Content-Length", Integer.toString(q.length()));

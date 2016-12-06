@@ -13,8 +13,8 @@ import java.util.ArrayList;
  * Created by mdric on 11/21/2016.
  */
 
-public class TraitAdapter extends ArrayAdapter<Trait> {
-    public TraitAdapter(Context ctx, ArrayList<Trait> ps) {
+public class TraitAdapter2 extends ArrayAdapter<Trait> {
+    public TraitAdapter2(Context ctx, ArrayList<Trait> ps) {
         super(ctx, 0, ps);
     }
 
@@ -24,14 +24,18 @@ public class TraitAdapter extends ArrayAdapter<Trait> {
         Trait t = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.trait_list_object, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.trait_list_object2, parent, false);
         }
         // Lookup view for data population
         TextView tName = (TextView) convertView.findViewById(R.id.trait_name);
-        TextView tField2 = (TextView) convertView.findViewById(R.id.trait_f2);
+        TextView tDominance = (TextView) convertView.findViewById(R.id.trait_dominance);
+        TextView tCarry = (TextView) convertView.findViewById(R.id.trait_carry);
+        TextView tExpress = (TextView) convertView.findViewById(R.id.trait_express);
         // Populate the data into the template view using the data object
         tName.setText(t.getName());
-        tField2.setText(String.valueOf(t.getDR()));
+        tDominance.setText(String.valueOf(t.getDR()));
+        tCarry.setText(String.valueOf(t.getCarrier()));
+        tExpress.setText(String.valueOf(t.getShower()));
         // Return the completed view to render on screen
         return convertView;
     }

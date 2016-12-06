@@ -189,15 +189,15 @@ public class CurrentProject extends AppCompatActivity
         int id = item.getItemId();
 
         // Lists out all the items of the hamburger menu. Each redirects to the appropriate page.
-        if (id == R.id.nav_profile) {
-            goProfile();
-        } else if (id == R.id.nav_projects) {
+        if (id == R.id.nav_projects) {
             goMainPage();
+        } /*else if (id == R.id.nav_profile) {
+            goProfile();
         } else if (id == R.id.nav_messages) {
             goMessages();
         } else if (id == R.id.nav_settings) {
             goSettings();
-        }
+        }*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -235,7 +235,7 @@ public class CurrentProject extends AppCompatActivity
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                 client.addRequestProperty("charset", "utf-8");
                 byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
-                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,0));
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
                 client.setUseCaches(false);
                 ip = new BufferedInputStream(client.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
@@ -324,7 +324,7 @@ public class CurrentProject extends AppCompatActivity
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                 client.addRequestProperty("charset", "utf-8");
                 byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
-                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba, 0));
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
                 client.setUseCaches(false);
                 ip = new BufferedInputStream(client.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(ip, "UTF-8"), 8);
@@ -360,21 +360,9 @@ public class CurrentProject extends AppCompatActivity
             int cross_id = 0;
             int i;
 
-
-            Log.w("Cross List: ", crosses.toString());
-
             try {
 
                 JSONObject json = null;
-
-                if(crosses.length() == 0) {
-
-                    name = "None";
-                    cross_id = -1;
-
-                    clv.AddItem(name, cross_id);
-
-                }
 
                 for (i = 0; i < crosses.length(); i++) {
                     json = crosses.getJSONObject(i);

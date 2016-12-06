@@ -1,28 +1,16 @@
 package tech.bloomgenetics.bloomapp;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by mdric on 10/27/2016.
  */
 
-public class TraitListView extends ListView {
+public class TraitListView2 extends ListView {
     /*
     SimpleAdapter adapter;
     List<Map<String, String>> listItems;
@@ -30,23 +18,23 @@ public class TraitListView extends ListView {
     HashMap<String, String> datum = new HashMap<String, String>();
 */
     ArrayList<Trait> aT = new ArrayList<Trait>();
-    TraitAdapter tA = new TraitAdapter(this.getContext(),aT);
+    TraitAdapter2 tA = new TraitAdapter2(this.getContext(),aT);
 
-    public TraitListView (Context ctx){
+    public TraitListView2(Context ctx){
 
         super(ctx);
         init();
         //setOnItemClickListener(new ClickListener());
     }
 
-    public TraitListView (Context ctx,AttributeSet attrs){
+    public TraitListView2(Context ctx, AttributeSet attrs){
 
         super(ctx,attrs);
         init();
         //setOnItemClickListener(new ClickListener());
     }
 
-    public TraitListView (Context ctx,AttributeSet attrs, int defStyleAttr){
+    public TraitListView2(Context ctx, AttributeSet attrs, int defStyleAttr){
 
         super(ctx,attrs,defStyleAttr);
         init();

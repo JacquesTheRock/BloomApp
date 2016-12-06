@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:paddingTop="5dp"
+    android:background="@drawable/paper_border">
+
+    <TextView
+        android:text="Trait Name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:id="@+id/trait_name"
+        android:textSize="24sp" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:text="Dominance"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/trait_dominance"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:text="Carrier: "
+            android:gravity="right"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:text="###"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/trait_carry"
+            android:layout_weight="1" />
+
+        <TextView
+            android:text="Expresses: "
+            android:gravity="right"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:text="###"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:id="@+id/trait_express"
+            android:layout_marginRight="10dp"
+            android:textSize="14sp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+</LinearLayout>

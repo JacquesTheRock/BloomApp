@@ -8,7 +8,7 @@
 
         android:layout_width="wrap_content"
         android:layout_height="80dp"
-        android:background="#71D16D"
+        android:background="@drawable/background"
         android:foregroundGravity="center"
         app:exampleColor="#33b5e5"
         app:exampleDimension="24sp"
