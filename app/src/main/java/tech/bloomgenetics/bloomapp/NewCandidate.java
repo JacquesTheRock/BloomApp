@@ -1,15 +1,28 @@
 package tech.bloomgenetics.bloomapp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.hardware.Camera;
+import android.hardware.camera2.CameraAccessException;
+import android.media.ExifInterface;
+import android.media.ImageWriter;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Base64;
 import android.util.Log;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -21,10 +34,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.hardware.Camera;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -36,12 +51,18 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class NewCandidate extends AppCompatActivity
@@ -52,10 +73,36 @@ public class NewCandidate extends AppCompatActivity
     private GetTraitSearch getTraits;
     private GetTraitSearch2 getTraits2;
     private TraitsToId ttID;
+    private PictureUploadTask uploadPic;
     public List<Integer> traits_insert = new ArrayList<>();
     public int[] traitIDs;
     private JSONArray traits = null;
+    public String img_result = "";
     public List<String> traits_in_project = new ArrayList<>();
+    public static final int MEDIA_TYPE_IMAGE = 1;
+    private Camera mCamera;
+    private CameraPreview mPreview;
+    private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
+
+        @Override
+        public void onPictureTaken(final byte[] data, Camera camera) {
+            Bitmap picture = BitmapFactory.decodeByteArray(data, 0, data.length);
+            String path = MediaStore.Images.Media.insertImage(getContentResolver(), picture, "name", "description");
+            String selectedImagePath = getLastImagePath();
+            Log.e("tag", "path: " + path); // prints something like "path: content://media/external/images/media/819"
+
+            try {
+                ExifInterface exif = new ExifInterface(selectedImagePath); // prints this error: "04-25 21:28:21.063: E/JHEAD(12201): can't open 'content://media/external/images/media/819'"
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                Log.e("tag", "exif orientation: " + orientation); // this is outputting orientation unknown
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            uploadPic = new PictureUploadTask(selectedImagePath);
+            uploadPic.execute((Void) null);
+        }
+    };
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -69,6 +116,23 @@ public class NewCandidate extends AppCompatActivity
         setContentView(R.layout.activity_new_candidate);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mCamera = getCameraInstance();
+        mCamera.setDisplayOrientation(90);
+        mPreview = new CameraPreview(this, mCamera);
+        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+        preview.addView(mPreview);
+
+        Button captureButton = (Button) findViewById(R.id.button_capture);
+        captureButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // get an image from the camera
+                        mCamera.takePicture(null, null, mPicture);
+                    }
+                }
+        );
 
         Button mCreateProjectButton = (Button) findViewById(R.id.new_candidate_create_button);
         mCreateProjectButton.setOnClickListener(new View.OnClickListener() {
@@ -103,10 +167,9 @@ public class NewCandidate extends AppCompatActivity
         int pool4;
 
         String trait1 = ((EditText) findViewById(R.id.new_cand_t1)).getText().toString();
-        if(!((EditText) findViewById(R.id.t1_pool)).getText().toString().equals("")){
+        if (!((EditText) findViewById(R.id.t1_pool)).getText().toString().equals("")) {
             pool1 = Integer.parseInt(((EditText) findViewById(R.id.t1_pool)).getText().toString());
-        }
-        else{
+        } else {
             pool1 = 0;
         }
         RadioGroup dom_rec_rg1 = (RadioGroup) findViewById(R.id.dom_rec_1);
@@ -115,10 +178,9 @@ public class NewCandidate extends AppCompatActivity
         String dom_rec1 = String.valueOf(dom_rec_rb1.getText());
 
         String trait2 = ((EditText) findViewById(R.id.new_cand_t2)).getText().toString();
-        if(!((EditText) findViewById(R.id.t2_pool)).getText().toString().equals("")){
+        if (!((EditText) findViewById(R.id.t2_pool)).getText().toString().equals("")) {
             pool2 = Integer.parseInt(((EditText) findViewById(R.id.t2_pool)).getText().toString());
-        }
-        else{
+        } else {
             pool2 = 0;
         }
         RadioGroup dom_rec_rg2 = (RadioGroup) findViewById(R.id.dom_rec_2);
@@ -127,10 +189,9 @@ public class NewCandidate extends AppCompatActivity
         String dom_rec2 = String.valueOf(dom_rec_rb2.getText());
 
         String trait3 = ((EditText) findViewById(R.id.new_cand_t3)).getText().toString();
-        if(!((EditText) findViewById(R.id.t3_pool)).getText().toString().equals("")){
+        if (!((EditText) findViewById(R.id.t3_pool)).getText().toString().equals("")) {
             pool3 = Integer.parseInt(((EditText) findViewById(R.id.t3_pool)).getText().toString());
-        }
-        else{
+        } else {
             pool3 = 0;
         }
         RadioGroup dom_rec_rg3 = (RadioGroup) findViewById(R.id.dom_rec_3);
@@ -139,10 +200,9 @@ public class NewCandidate extends AppCompatActivity
         String dom_rec3 = String.valueOf(dom_rec_rb3.getText());
 
         String trait4 = ((EditText) findViewById(R.id.new_cand_t4)).getText().toString();
-        if(!((EditText) findViewById(R.id.t4_pool)).getText().toString().equals("")){
+        if (!((EditText) findViewById(R.id.t4_pool)).getText().toString().equals("")) {
             pool4 = Integer.parseInt(((EditText) findViewById(R.id.t4_pool)).getText().toString());
-        }
-        else{
+        } else {
             pool4 = 0;
         }
         RadioGroup dom_rec_rg4 = (RadioGroup) findViewById(R.id.dom_rec_4);
@@ -150,7 +210,7 @@ public class NewCandidate extends AppCompatActivity
         RadioButton dom_rec_rb4 = (RadioButton) findViewById(selectedId4);
         String dom_rec4 = String.valueOf(dom_rec_rb4.getText());
 
-        Log.w("Pool values", pool1 + " "+ pool2 + " " + pool3 + " " + pool4);
+        Log.w("Pool values", pool1 + " " + pool2 + " " + pool3 + " " + pool4);
         getTraits = new GetTraitSearch(trait1, dom_rec1, pool1, trait2, dom_rec2, pool2, trait3, dom_rec3, pool3, trait4, dom_rec4, pool4);
         getTraits.execute((Void) null);
 
@@ -273,9 +333,11 @@ public class NewCandidate extends AppCompatActivity
         client.disconnect();
     }
 
-    /** Check if this device has a camera */
+    /**
+     * Check if this device has a camera
+     */
     private boolean checkCameraHardware(Context context) {
-        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
             // this device has a camera
             return true;
         } else {
@@ -284,12 +346,85 @@ public class NewCandidate extends AppCompatActivity
         }
     }
 
+    public static Camera getCameraInstance() {
+        Camera c = null;
+        try {
+            c = Camera.open(); // attempt to get a Camera instance
+        } catch (Exception e) {
+            // Camera is not available (in use or does not exist)
+        }
+        return c; // returns null if camera is unavailable
+    }
+
+    /**
+     * A basic Camera preview class
+     */
+    public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
+        private SurfaceHolder mHolder;
+        private Camera mCamera;
+
+        public CameraPreview(Context context, Camera camera) {
+            super(context);
+            mCamera = camera;
+
+            // Install a SurfaceHolder.Callback so we get notified when the
+            // underlying surface is created and destroyed.
+            mHolder = getHolder();
+            mHolder.addCallback(this);
+            // deprecated setting, but required on Android versions prior to 3.0
+            mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        }
+
+        public void surfaceCreated(SurfaceHolder holder) {
+            // The Surface has been created, now tell the camera where to draw the preview.
+            try {
+                mCamera.setPreviewDisplay(holder);
+                mCamera.startPreview();
+            } catch (Exception e) {
+                Log.w("Camera Preview Error", e);
+            }
+        }
+
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            // empty. Take care of releasing the Camera preview in your activity.
+        }
+
+        public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+            // If your preview can change or rotate, take care of those events here.
+            // Make sure to stop the preview before resizing or reformatting it.
+
+            if (mHolder.getSurface() == null) {
+                // preview surface does not exist
+                return;
+            }
+
+            // stop preview before making changes
+            try {
+                mCamera.stopPreview();
+            } catch (Exception e) {
+                // ignore: tried to stop a non-existent preview
+            }
+
+            // set preview size and make any resize, rotate or
+            // reformatting changes here
+
+            // start preview with new settings
+            try {
+                mCamera.setPreviewDisplay(mHolder);
+                mCamera.startPreview();
+
+            } catch (Exception e) {
+                Log.w("Camera Preview Error", e);
+            }
+        }
+    }
+
     public class CandidateCreateTask extends AsyncTask<Void, Void, Boolean> {
         int[] traits;
 
         CandidateCreateTask(int[] t) {
             traits = t;
-            Log.w("Trait Array", ""+traits);
+            Log.w("Trait Array", "" + traits);
         }
 
         @Override
@@ -317,7 +452,7 @@ public class NewCandidate extends AppCompatActivity
                 Candidate c = new Candidate();
                 c.setTraits(traits);
                 String q = c.toString();
-                Log.w("Create Candidate Data",q);
+                Log.w("Create Candidate Data", q);
                 URL apiURL = new URL("http://bloomgenetics.tech/api/v1/projects/" + bundle.getInt("proj_id") + "/crosses/" + bundle.getInt("cross_id") + "/candidates");
                 HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
                 client.setRequestMethod("POST");
@@ -443,7 +578,7 @@ public class NewCandidate extends AppCompatActivity
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                 client.addRequestProperty("charset", "utf-8");
                 byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
-                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba, Base64.NO_WRAP));
                 client.setUseCaches(false);
                 ip = new BufferedInputStream(client.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(ip, "UTF-8"), 8);
@@ -498,7 +633,7 @@ public class NewCandidate extends AppCompatActivity
                 Log.w("Error:", e);
             }
 
-            Log.w("Pool values", p1 + " "+ p2 + " " + p3 + " " + p4);
+            Log.w("Pool values", p1 + " " + p2 + " " + p3 + " " + p4);
             traitCreate = new TraitCreateTask(t1, dr1, p1, t2, dr2, p2, t3, dr3, p3, t4, dr4, p4);
             traitCreate.execute((Void) null);
 
@@ -556,7 +691,7 @@ public class NewCandidate extends AppCompatActivity
                 client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                 client.addRequestProperty("charset", "utf-8");
                 byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
-                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba, Base64.NO_WRAP));
                 client.setUseCaches(false);
                 ip = new BufferedInputStream(client.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(ip, "UTF-8"), 8);
@@ -696,7 +831,7 @@ public class NewCandidate extends AppCompatActivity
                         json = traits.getJSONObject(i);
                         trait_name = json.getString("name");
 
-                        if(trait_name.equals(t1) || trait_name.equals(t2) || trait_name.equals(t3) || trait_name.equals(t4)){
+                        if (trait_name.equals(t1) || trait_name.equals(t2) || trait_name.equals(t3) || trait_name.equals(t4)) {
                             traits_insert.add(json.getInt("id"));
                         }
 
@@ -709,7 +844,7 @@ public class NewCandidate extends AppCompatActivity
 
             int i;
             traitIDs = new int[traits_insert.size()];
-            for(i=0; i<traits_insert.size(); i++){
+            for (i = 0; i < traits_insert.size(); i++) {
                 traitIDs[i] = traits_insert.get(i);
             }
 
@@ -780,22 +915,22 @@ public class NewCandidate extends AppCompatActivity
                     client.setRequestMethod("POST");
                     client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                     byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
-                    client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
-                    Log.w("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
+                    client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba, Base64.NO_WRAP));
+                    Log.w("Authorization", "Basic " + Base64.encodeToString(ba, Base64.NO_WRAP));
                     client.addRequestProperty("charset", "utf-8");
                     client.setRequestProperty("Content-Length", Integer.toString(q.length()));
                     client.setUseCaches(false);
                     client.setDoOutput(true);
                     DataOutputStream op = new DataOutputStream(client.getOutputStream());
                     op.write(q.getBytes());
-                    Log.w("Trait Creation","Name - " + t1);
+                    Log.w("Trait Creation", "Name - " + t1);
                     ip = new BufferedInputStream(client.getInputStream());
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(ip, "UTF-8"), 8);
                     StringBuilder sb = new StringBuilder();
                     String line = null;
-                    Log.w("Flag","76");
+                    Log.w("Flag", "76");
                     while ((line = reader.readLine()) != null) {
-                        sb.append(line+"\n");
+                        sb.append(line + "\n");
                     }
                     result = sb.toString();
                     Log.w("Trait Created!", "");
@@ -815,21 +950,21 @@ public class NewCandidate extends AppCompatActivity
                     client.setRequestMethod("POST");
                     client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                     byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
-                    client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
-                    Log.w("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
+                    client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba, Base64.NO_WRAP));
+                    Log.w("Authorization", "Basic " + Base64.encodeToString(ba, Base64.NO_WRAP));
                     client.addRequestProperty("charset", "utf-8");
                     client.setRequestProperty("Content-Length", Integer.toString(q.length()));
                     client.setUseCaches(false);
                     client.setDoOutput(true);
                     DataOutputStream op = new DataOutputStream(client.getOutputStream());
                     op.write(q.getBytes());
-                    Log.w("Trait Creation","Name - " + t2);
+                    Log.w("Trait Creation", "Name - " + t2);
                     ip = new BufferedInputStream(client.getInputStream());
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(ip, "UTF-8"), 8);
                     StringBuilder sb = new StringBuilder();
                     String line = null;
                     while ((line = reader.readLine()) != null) {
-                        sb.append(line+"\n");
+                        sb.append(line + "\n");
                     }
                     result = sb.toString();
                     Log.w("Trait Created!", "");
@@ -849,22 +984,22 @@ public class NewCandidate extends AppCompatActivity
                     client.setRequestMethod("POST");
                     client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                     byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
-                    client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
-                    Log.w("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
+                    client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba, Base64.NO_WRAP));
+                    Log.w("Authorization", "Basic " + Base64.encodeToString(ba, Base64.NO_WRAP));
                     client.addRequestProperty("charset", "utf-8");
                     client.setRequestProperty("Content-Length", Integer.toString(q.length()));
                     client.setUseCaches(false);
                     client.setDoOutput(true);
                     DataOutputStream op = new DataOutputStream(client.getOutputStream());
                     op.write(q.getBytes());
-                    Log.w("Trait Creation","Name - " + t3);
+                    Log.w("Trait Creation", "Name - " + t3);
                     ip = new BufferedInputStream(client.getInputStream());
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(ip, "UTF-8"), 8);
                     StringBuilder sb = new StringBuilder();
                     String line = null;
-                    Log.w("Flag","76");
+                    Log.w("Flag", "76");
                     while ((line = reader.readLine()) != null) {
-                        sb.append(line+"\n");
+                        sb.append(line + "\n");
                     }
                     result = sb.toString();
                     Log.w("Trait Created!", "");
@@ -884,22 +1019,22 @@ public class NewCandidate extends AppCompatActivity
                     client.setRequestMethod("POST");
                     client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
                     byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
-                    client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
-                    Log.w("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
+                    client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba, Base64.NO_WRAP));
+                    Log.w("Authorization", "Basic " + Base64.encodeToString(ba, Base64.NO_WRAP));
                     client.addRequestProperty("charset", "utf-8");
                     client.setRequestProperty("Content-Length", Integer.toString(q.length()));
                     client.setUseCaches(false);
                     client.setDoOutput(true);
                     DataOutputStream op = new DataOutputStream(client.getOutputStream());
                     op.write(q.getBytes());
-                    Log.w("Trait Creation","Name - " + t4);
+                    Log.w("Trait Creation", "Name - " + t4);
                     ip = new BufferedInputStream(client.getInputStream());
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(ip, "UTF-8"), 8);
                     StringBuilder sb = new StringBuilder();
                     String line = null;
-                    Log.w("Flag","76");
+                    Log.w("Flag", "76");
                     while ((line = reader.readLine()) != null) {
-                        sb.append(line+"\n");
+                        sb.append(line + "\n");
                     }
                     result = sb.toString();
                     Log.w("Trait Created!", "");
@@ -919,6 +1054,132 @@ public class NewCandidate extends AppCompatActivity
         protected void onPostExecute(Boolean aBoolean) {
             getTraits2 = new GetTraitSearch2(t1, dr1, p1, t2, dr2, p2, t3, dr3, p3, t4, dr4, p4);
             getTraits2.execute((Void) null);
+        }
+    }
+
+    public class PictureUploadTask extends AsyncTask<Void, Void, Boolean> {
+
+        String img_path = "";
+        PictureUploadTask(String path) {
+            img_path = path;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                return false;
+            }
+            InputStream ip = null;
+            String result = null;
+
+            try {
+                Bundle bundle = getIntent().getExtras();
+
+                Bitmap bm = BitmapFactory.decodeFile(getLastImagePath());
+                ByteArrayOutputStream bao = new ByteArrayOutputStream();
+                bm.compress(Bitmap.CompressFormat.JPEG, 90, bao);
+                byte[] ba1 = bao.toByteArray();
+                String image = Base64.encodeToString(ba1, Base64.NO_WRAP);
+
+                String q = "data:" + image;
+
+                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/images");
+                HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
+                client.setRequestMethod("POST");
+                client.addRequestProperty("Content-type", "application/json");
+                byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba, Base64.NO_WRAP));
+                Log.w("Authorization", "Basic " + Base64.encodeToString(ba, Base64.NO_WRAP));
+                client.addRequestProperty("charset", "utf-8");
+                client.setRequestProperty("Content-Length", Integer.toString(q.length()));
+                client.setUseCaches(false);
+                client.setDoOutput(true);
+                DataOutputStream op = new DataOutputStream(client.getOutputStream());
+                op.write(q.getBytes());
+                Log.w("Upload Complete?", "Hopefully");
+                ip = new BufferedInputStream(client.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ip, "UTF-8"));
+                StringBuilder sb = new StringBuilder();
+                String line = null;
+                Log.w("Flag", "76");
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line + "\n");
+                }
+                img_result = sb.toString();
+                Log.w("Image Created!", "");
+            } catch (Exception e) {
+                Log.w("Trait Creation Error", e + "");
+            } finally {
+            }
+
+
+            // TODO: register the new account here.
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            //getTraits2 = new GetTraitSearch2(t1, dr1, p1, t2, dr2, p2, t3, dr3, p3, t4, dr4, p4);
+            //getTraits2.execute((Void) null);
+        }
+    }
+
+    /**
+     * Create a file Uri for saving an image or video
+     */
+    private static Uri getOutputMediaFileUri(int type) {
+        return Uri.fromFile(getOutputMediaFile(type));
+    }
+
+    /**
+     * Create a File for saving an image or video
+     */
+    private static File getOutputMediaFile(int type) {
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "MyCameraApp");
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                Log.d("MyCameraApp", "failed to create directory");
+                return null;
+            }
+        }
+
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        File mediaFile;
+        if (type == MEDIA_TYPE_IMAGE) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+                    "IMG_" + timeStamp + ".jpg");
+        } else {
+            return null;
+        }
+
+        return mediaFile;
+    }
+
+    private String getLastImagePath(){
+        final String[] imageColumns = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA };
+        final String imageOrderBy = MediaStore.Images.Media._ID+" DESC";
+        Cursor imageCursor = managedQuery(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageColumns, null, null, imageOrderBy);
+        if(imageCursor.moveToFirst()){
+            int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
+            String fullPath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            Log.w("getLastImageId::id", ""+id);
+            Log.w("getLastImageId::path ", fullPath);
+            imageCursor.close();
+            return fullPath;
+        }else{
+            return "";
         }
     }
 

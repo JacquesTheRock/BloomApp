@@ -20,7 +20,7 @@
 
         <TextView
             android:text="Dominance"
-            android:layout_width="80dp"
+            android:layout_width="70dp"
             android:layout_height="wrap_content"
             android:id="@+id/trait_dominance"
             android:layout_marginLeft="10dp"
@@ -29,13 +29,13 @@
         <TextView
             android:text="Carrier: "
             android:gravity="right"
-            android:layout_width="80dp"
+            android:layout_width="40dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
         <TextView
             android:text="###"
-            android:layout_width="wrap_content"
+            android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:id="@+id/trait_carry"
             android:layout_weight="1" />
@@ -43,13 +43,13 @@
         <TextView
             android:text="Expresses: "
             android:gravity="right"
-            android:layout_width="80dp"
+            android:layout_width="65dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
         <TextView
             android:text="###"
-            android:layout_width="wrap_content"
+            android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:gravity="left"
             android:id="@+id/trait_express"

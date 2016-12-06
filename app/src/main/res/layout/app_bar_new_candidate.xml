@@ -24,12 +24,16 @@
 
     <include layout="@layout/content_new_project" />
 
+    <ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:paddingBottom="15dp">
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:weightSum="1">
-
 
         <TextView
             android:text="Add New Candidate"
@@ -41,6 +45,28 @@
             android:gravity="center"
             android:layout_weight="0.07"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+
+        <FrameLayout
+            android:id="@+id/camera_preview"
+            android:layout_width="fill_parent"
+            android:layout_height="350dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="1"
+            />
+
+        <Button
+            android:id="@+id/button_capture"
+            android:text="Capture"
+            style="?android:textAppearanceSmall"
+            android:background="#4C4C4C"
+            android:textColor="#FFFFFF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            />
 
         <LinearLayout
             android:orientation="horizontal"
@@ -318,9 +344,10 @@
             android:layout_marginTop="16dp"
             android:text="Create New Candidate"
             android:textStyle="bold"
-            android:onClick="goCurrentCross" />
+            android:onClick="goCurrentCross"/>
 
 
     </LinearLayout>
+    </ScrollView>
 
 </android.support.design.widget.CoordinatorLayout>
