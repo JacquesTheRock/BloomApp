@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.media.ExifInterface;
@@ -89,6 +90,7 @@ public class NewCandidate extends AppCompatActivity
         @Override
         public void onPictureTaken(final byte[] data, Camera camera) {
             Bitmap picture = BitmapFactory.decodeByteArray(data, 0, data.length);
+            picture = RotateBitmap(picture, 90);
             String path = MediaStore.Images.Media.insertImage(getContentResolver(), picture, "name", "description");
             String selectedImagePath = getLastImagePath();
             Log.e("tag", "path: " + path); // prints something like "path: content://media/external/images/media/819"
@@ -425,6 +427,7 @@ public class NewCandidate extends AppCompatActivity
     public class CandidateCreateTask extends AsyncTask<Void, Void, Boolean> {
         int[] traits;
         int iid = 0;
+        String notes = ((EditText) findViewById(R.id.new_cand_notes)).getText().toString();
 
         CandidateCreateTask(int[] t, int img_id) {
             traits = t;
@@ -458,6 +461,7 @@ public class NewCandidate extends AppCompatActivity
                 Log.w("Passing Image ID", ""+iid);
                 c.setImgId(iid);
                 c.setTraits(traits);
+                c.setNotes(notes);
                 String q = c.toString();
                 Log.w("Create Candidate Data", q);
                 URL apiURL = new URL("http://bloomgenetics.tech/api/v1/projects/" + bundle.getInt("proj_id") + "/crosses/" + bundle.getInt("cross_id") + "/candidates");
@@ -519,6 +523,7 @@ public class NewCandidate extends AppCompatActivity
                 intent.putExtra("proj_location", bundle.getString("proj_location"));
                 intent.putExtra("cross_id", bundle.getInt("cross_id"));
                 intent.putExtra("cross_name", bundle.getString("cross_name"));
+                intent.putExtra("cross_desc", bundle.getString("cross_desc"));
                 intent.putExtra("cross_p1", bundle.getInt("cross_p1"));
                 intent.putExtra("cross_p2", bundle.getInt("cross_p2"));
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -1099,7 +1104,7 @@ public class NewCandidate extends AppCompatActivity
                 byte[] ba1 = bao.toByteArray();
                 String image = Base64.encodeToString(ba1, Base64.NO_WRAP);
 
-                String q = "{" + "\"data\":\"" + image + "\"," + "\"type\": \"jpeg\"" + "}";
+                String q = "{" + "\"data\":\"data:image/png;base64," + image + "\"," + "\"type\": \"jpeg\"" + "}";
 
                 URL apiURL = new URL("http://bloomgenetics.tech/api/v1/images");
                 HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
@@ -1209,4 +1214,10 @@ public class NewCandidate extends AppCompatActivity
         }
     }
 
+    public static Bitmap RotateBitmap(Bitmap source, float angle)
+    {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+    }
 }

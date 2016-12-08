@@ -25,7 +25,7 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="660dp"
+        android:layout_height="fill_parent"
         android:weightSum="1">
 
         <tech.bloomgenetics.bloomapp.ProjectListView

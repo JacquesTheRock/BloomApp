@@ -73,7 +73,7 @@ public class TraitListView extends ListView {
         setAdapter(tA);
     }
 
-    public void addItem(String name, String f2) {
+    public void addItem(String name, String f2, String pool) {
 /*
         projectListObject v = new projectListObject(this.getContext());
 
@@ -83,6 +83,7 @@ public class TraitListView extends ListView {
         Trait t = new Trait();
         t.setName(name);
         t.setDR(f2);
+        t.setGroup(pool);
         tA.add(t);
     }
 

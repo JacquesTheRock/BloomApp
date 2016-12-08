@@ -29,9 +29,11 @@ public class TraitAdapter extends ArrayAdapter<Trait> {
         // Lookup view for data population
         TextView tName = (TextView) convertView.findViewById(R.id.trait_name);
         TextView tField2 = (TextView) convertView.findViewById(R.id.trait_f2);
+        TextView tGroup = (TextView) convertView.findViewById(R.id.trait_group);
         // Populate the data into the template view using the data object
         tName.setText(t.getName());
         tField2.setText(String.valueOf(t.getDR()));
+        tGroup.setText(t.getGroup());
         // Return the completed view to render on screen
         return convertView;
     }

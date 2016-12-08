@@ -13,11 +13,33 @@
         android:id="@+id/trait_name"
         android:textSize="24sp" />
 
-    <TextView
-        android:text="###"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:id="@+id/trait_f2"
-        android:textSize="14sp" />
+        android:layout_height="match_parent">
+
+        <TextView
+            android:text="Group: "
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:layout_weight="1" />
+
+        <TextView
+            android:text="##"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/trait_group"
+            android:layout_weight="1" />
+
+        <TextView
+            android:text="###"
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:id="@+id/trait_f2"
+            android:textSize="14sp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
 </LinearLayout>

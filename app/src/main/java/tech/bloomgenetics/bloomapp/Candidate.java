@@ -8,6 +8,7 @@ public class Candidate {
 
         private int id;
         private String name;
+        private String notes;
         private int[] traits;
         private int iid;
 
@@ -26,6 +27,14 @@ public class Candidate {
         public void setId(int id) {
             this.id = id;
         }
+
+        public String getNotes() {
+        return notes;
+    }
+
+        public void setNotes(String notes) {
+        this.notes = notes;
+    }
 
         public int getImgId() {
         return iid;
@@ -60,6 +69,8 @@ public class Candidate {
             out += "]";
 
             out += ", \"imageID\": " + getImgId() + "";
+
+            out += ", \"note\": \"" + getNotes() + "\"";
 
             out += "}";
             return out;

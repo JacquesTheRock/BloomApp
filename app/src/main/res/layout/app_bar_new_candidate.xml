@@ -332,6 +332,22 @@
                 android:layout_weight="1" />
         </RadioGroup>
 
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:lines="3"
+            android:maxLines="5"
+            android:gravity="top|left"
+            android:scrollbars="vertical"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="5dp"
+            android:hint="Notes (Optional)"
+            android:ems="10"
+            android:background="#FFFFFF"
+            android:id="@+id/new_cand_notes" />
+
         <Button
             android:id="@+id/new_candidate_create_button"
             style="?android:textAppearanceSmall"

@@ -103,10 +103,14 @@ public class CurrentCross extends AppCompatActivity
         TextView cross_name = (TextView)findViewById(R.id.current_cross_title);
         TextView p1_id = (TextView)findViewById(R.id.cross_p1_id);
         TextView p2_id = (TextView)findViewById(R.id.cross_p2_id);
+        TextView cross_description_field = (TextView)findViewById(R.id.current_cross_description);
 
         cross_name.setText(String.valueOf(bundle.getString("cross_name")));
         p1_id.setText(String.valueOf(bundle.getInt("cross_p1")));
         p2_id.setText(String.valueOf(bundle.getInt("cross_p2")));
+        if(!bundle.getString("cross_desc").equals("")){
+            cross_description_field.setText(bundle.getString("cross_desc"));
+        }
 
     }
 
@@ -129,6 +133,7 @@ public class CurrentCross extends AppCompatActivity
         intent.putExtra("proj_location", bundle.getString("proj_location"));
         intent.putExtra("cross_id", bundle.getInt("cross_id"));
         intent.putExtra("cross_name", bundle.getString("cross_name"));
+        intent.putExtra("cross_desc", bundle.getString("cross_desc"));
         intent.putExtra("cross_p1", bundle.getInt("cross_p1"));
         intent.putExtra("cross_p2", bundle.getInt("cross_p2"));
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -329,6 +334,7 @@ public class CurrentCross extends AppCompatActivity
                                         mainIntent.putExtra("cross_p1", bundle.getInt("cross_p1"));
                                         mainIntent.putExtra("cross_p2", bundle.getInt("cross_p2"));
                                         mainIntent.putExtra("candidate_name", "Candidate #" + selected.getInt("id"));
+                                        mainIntent.putExtra("cand_notes", selected.getString("note"));
                                         mainIntent.putExtra("candidate_iid", selected.getInt("imageId"));
                                         mainIntent.putExtra("candidate_id", String.valueOf(selected.getInt("id")));
                                         mainIntent.putExtra("candidate_traits", String.valueOf(selected.get("traits")));
@@ -421,7 +427,7 @@ public class CurrentCross extends AppCompatActivity
             try {
 
                 NumberFormat formatter = new DecimalFormat("#0.0%");
-                if(!traits.equals(null)){
+                if(traits != null){
                     for (i = 0; i < traits.length(); i++) {
 
 

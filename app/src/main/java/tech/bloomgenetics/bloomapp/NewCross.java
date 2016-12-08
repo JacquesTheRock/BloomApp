@@ -107,6 +107,7 @@ public class NewCross extends AppCompatActivity
         String cross_name = ((EditText) findViewById(R.id.new_cross_name)).getText().toString();
         int cross_p1 = 0;
         int cross_p2 = 0;
+        String cross_description = ((EditText) findViewById(R.id.new_cross_description)).getText().toString();
 
         if(!((EditText) findViewById(R.id.new_cross_parent1)).getText().toString().equals("")) {
             cross_p1 = Integer.parseInt(((EditText) findViewById(R.id.new_cross_parent1)).getText().toString());
@@ -120,7 +121,7 @@ public class NewCross extends AppCompatActivity
             cErrorField.setError("Cross name required!");
         }
         else {
-            createTask = new CrossCreateTask(cross_name, cross_p1, cross_p2);
+            createTask = new CrossCreateTask(cross_name, cross_p1, cross_p2, cross_description);
             createTask.execute((Void) null);
 /*
             Intent intent = new Intent(this.getBaseContext(), MainPage.class);
@@ -292,11 +293,13 @@ public class NewCross extends AppCompatActivity
         String cross_name;
         int cross_p1;
         int cross_p2;
+        String description;
 
-        CrossCreateTask(String n, int p1, int p2) {
+        CrossCreateTask(String n, int p1, int p2, String desc) {
             cross_name = n;
             cross_p1 = p1;
             cross_p2 = p2;
+            description = desc;
         }
 
         @Override
@@ -314,7 +317,7 @@ public class NewCross extends AppCompatActivity
             try {
                 Bundle bundle = getIntent().getExtras();
 
-                String q = "parent1=" + cross_p1 + "&parent2=" + cross_p2 + "&name=" + cross_name;
+                String q = "parent1=" + cross_p1 + "&parent2=" + cross_p2 + "&name=" + cross_name + "&description=" + description;
                 URL apiURL = new URL("http://bloomgenetics.tech/api/v1/projects/" + bundle.getInt("proj_id") + "/crosses");
                 HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
                 client.setRequestMethod("POST");

@@ -22,14 +22,11 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <ScrollView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="fill_parent"
         android:paddingTop="60dp"
         android:weightSum="1">
 
@@ -49,7 +46,7 @@
             android:textSize="20dp"
             android:textStyle="bold"
             android:gravity="left"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"/>
         <ScrollView
             android:layout_width="match_parent"
@@ -60,7 +57,7 @@
 
 
             <TextView
-                android:text="Insert Description Here"
+                android:text="No Description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="15dp"
@@ -80,10 +77,10 @@
             android:textSize="20dp"
             android:textStyle="bold"
             android:gravity="left"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"/>
         <TextView
-            android:text="Type"
+            android:text="Not Specified"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="15dp"
@@ -98,10 +95,10 @@
             android:textSize="20dp"
             android:textStyle="bold"
             android:gravity="left"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"/>
         <TextView
-            android:text="Species"
+            android:text="Not Specified"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="15dp"
@@ -116,10 +113,10 @@
             android:textSize="20dp"
             android:textStyle="bold"
             android:gravity="left"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"/>
         <TextView
-            android:text="Location"
+            android:text="Undisclosed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="15dp"
@@ -134,13 +131,13 @@
             android:textSize="20dp"
             android:textStyle="bold"
             android:gravity="left"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"/>
 
 
         <LinearLayout
             android:layout_width="180dp"
-            android:layout_height="180dp"
+            android:layout_height="110dp"
             android:layout_gravity="center_horizontal"
             android:orientation="horizontal">
 
@@ -173,6 +170,5 @@
             android:onClick="goNewCross" />
 
     </LinearLayout>
-    </ScrollView>
 
 </android.support.design.widget.CoordinatorLayout>

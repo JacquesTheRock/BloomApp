@@ -99,9 +99,12 @@ public class CurrentCandidate extends AppCompatActivity
         });
 */
         TextView candidate_name = (TextView) findViewById(R.id.current_candidate_title);
-        ImageView cand_img = (ImageView)findViewById(R.id.candidate_picture);
+        TextView cand_note_field = (TextView)findViewById(R.id.cand_notes);
 
         candidate_name.setText(String.valueOf(bundle.getString("candidate_name")));
+        if(!bundle.getString("cand_notes").equals("")){
+            cand_note_field.setText(bundle.getString("cand_notes"));
+        }
 
         Log.w("Candidate ID", "" + bundle.getString("candidate_id"));
 
@@ -267,6 +270,7 @@ public class CurrentCandidate extends AppCompatActivity
         protected void onPostExecute(final Boolean success) {
             String trait_name = "";
             String trait_weight = "";
+            String trait_group = "";
             int i;
 
             try {
@@ -281,8 +285,9 @@ public class CurrentCandidate extends AppCompatActivity
                         trait_name = json.getString("name");
                         String weight = json.getString("type");
                         trait_weight = weight.substring(0, 1).toUpperCase() + weight.substring(1);
+                        trait_group = String.valueOf(json.getInt("pool"));
                         //traits = json.get("traits");
-                        tlv.addItem(trait_name, trait_weight);
+                        tlv.addItem(trait_name, trait_weight, trait_group);
 
                     }
                 }
@@ -303,7 +308,7 @@ public class CurrentCandidate extends AppCompatActivity
         protected Boolean doInBackground(Void... params) {
             UserAuth user = UserAuth.getInstance();
             try {
-                Thread.sleep(500);
+                Thread.sleep(50);
             } catch (InterruptedException e) {
                 Log.w("Error in PicSearch", "");
                 return false;
@@ -329,25 +334,27 @@ public class CurrentCandidate extends AppCompatActivity
                     sb.append(line+"\n");
                 }
                 result = sb.toString();
+                JSONObject jRes = new JSONObject(result);
+                Log.w("jRes", ""+jRes);
+                picture_object = jRes.getJSONObject("data");
+                Log.w("picture_object", ""+picture_object);
+                String picture_string = picture_object.getString("data").substring(22);
+                Log.w("picture_string", ""+picture_string);
+                decodedString = Base64.decode(picture_string, Base64.DEFAULT);
+                Log.w("Decoded String", "" + decodedString);
+                image = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                Log.w("Bitmap", "" + image);
                 Log.w("Candidate Pic Result",result);
             } catch (Exception e) {
                 Log.w("Pic Error #741",e + "");
-            } finally {
             }
             try {
-                JSONObject jRes = new JSONObject(result);
-                Log.w("Image jRes", ""+jRes);
-                picture_object = jRes.getJSONObject("data");
-                Log.w("Picture_Object", ""+picture_object);
-                String image_data = picture_object.getString("data");
-                Log.w("Image_Data", ""+image_data);
-                decodedString = Base64.decode(image_data.getBytes(), Base64.URL_SAFE);
-                Log.w("Decoded String", ""+decodedString);
-                image = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            } catch(Exception e) {
 
+            } catch(Exception e) {
+                Log.w("Picture Retreive Error", "");
             }
 
+            Log.w("PictureSearch", "Complete");
             return true;
         }
 
@@ -358,10 +365,17 @@ public class CurrentCandidate extends AppCompatActivity
         @Override
         protected void onPostExecute(final Boolean success) {
 
-            Log.w("Bitmap", ""+image);
-            ImageView cand_img = (ImageView)findViewById(R.id.candidate_picture);
-            cand_img.setImageBitmap(image);
-        }
+            try {
 
+                ImageView cand_img = (ImageView) findViewById(R.id.candidate_picture);
+                Log.w("Bitmap", ""+image);
+                if(image != null){
+                    cand_img.setImageBitmap(image);
+                }
+
+            } catch (Exception e){
+                Log.w("Error in PostExe", "");
+            }
+        }
     }
 }

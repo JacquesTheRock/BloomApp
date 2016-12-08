@@ -11,6 +11,7 @@ public class Trait {
     private String shower;
     private String name;
     private int id;
+    private String group;
 
     public String getName() {
         return name;
@@ -26,6 +27,14 @@ public class Trait {
 
     public void setDR(String dr) {
         this.dr = dr;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 
     public String getCarrier() {

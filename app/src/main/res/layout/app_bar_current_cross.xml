@@ -25,10 +25,14 @@
         android:id="@+id/include" />
 
 
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="fill_parent"
         android:paddingTop="60dp">
 
         <TextView
@@ -39,6 +43,37 @@
             android:textStyle="bold"
             android:gravity="center"
             android:id="@+id/current_cross_title" />
+
+        <TextView
+            android:text="Cross Description:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:textStyle="bold"
+            android:gravity="left"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"/>
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/desc_border">
+
+
+            <TextView
+                android:text="No Description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                android:gravity="left"
+                android:minLines="4"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:id="@+id/current_cross_description" />
+
+        </ScrollView>
 
         <LinearLayout
             android:orientation="horizontal"
@@ -164,6 +199,6 @@
             android:onClick="goNewCandidate" />
 
     </LinearLayout>
-
+    </ScrollView>
 
 </android.support.design.widget.CoordinatorLayout>

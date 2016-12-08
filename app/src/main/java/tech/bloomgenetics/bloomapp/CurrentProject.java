@@ -281,6 +281,7 @@ public class CurrentProject extends AppCompatActivity
                             mainIntent.putExtra("proj_location", bundle.getString("proj_location"));
                             mainIntent.putExtra("cross_id", selected.getInt("id"));
                             mainIntent.putExtra("cross_name", selected.getString("name"));
+                            mainIntent.putExtra("cross_desc", selected.getString("description"));
                             mainIntent.putExtra("cross_p1", parent1);
                             mainIntent.putExtra("cross_p2", parent2);
 
