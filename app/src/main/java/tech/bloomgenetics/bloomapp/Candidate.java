@@ -9,6 +9,7 @@ public class Candidate {
         private int id;
         private String name;
         private int[] traits;
+        private int iid;
 
         public String getName() {
             return name;
@@ -25,6 +26,14 @@ public class Candidate {
         public void setId(int id) {
             this.id = id;
         }
+
+        public int getImgId() {
+        return iid;
+    }
+
+        public void setImgId(int iid) {
+        this.iid = iid;
+    }
 
         public void setTraits(int[] traits) {
 
@@ -49,6 +58,8 @@ public class Candidate {
                     out += t.toString();
             }
             out += "]";
+
+            out += ", \"imageID\": " + getImgId() + "";
 
             out += "}";
             return out;

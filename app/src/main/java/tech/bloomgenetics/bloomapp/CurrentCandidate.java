@@ -1,6 +1,8 @@
 package tech.bloomgenetics.bloomapp;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -18,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
@@ -46,9 +49,13 @@ public class CurrentCandidate extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     CandidateTraitSearch traitTask;
+    PictureSearch picTask;
     TraitListView tlv;
     JSONObject result_data;
     JSONArray traits = null;
+    JSONObject picture_object = null;
+    byte[] decodedString = null;
+    Bitmap image = null;
 
     // Loads everything that appears on the page when it's loaded.
     @Override
@@ -69,8 +76,11 @@ public class CurrentCandidate extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
+        Log.w("Candidate Image ID", ""+bundle.getInt("candidate_iid"));
         traitTask = new CandidateTraitSearch();
         traitTask.execute((Void) null);
+        picTask = new PictureSearch();
+        picTask.execute((Void)null);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -89,18 +99,11 @@ public class CurrentCandidate extends AppCompatActivity
         });
 */
         TextView candidate_name = (TextView) findViewById(R.id.current_candidate_title);
+        ImageView cand_img = (ImageView)findViewById(R.id.candidate_picture);
+
         candidate_name.setText(String.valueOf(bundle.getString("candidate_name")));
 
         Log.w("Candidate ID", "" + bundle.getString("candidate_id"));
-
-        /*String[] temp_trait_array = {"Red", "Blue", "Green", "Yellow", "Tall", "Short", "Leafy", "Fleshy", "Spicy", "Sweet", "Bitter", "Big Leaves", "Small Leaves", "Deep Roots", "Shallow Roots"};
-        String[] temp_weights = {"Dominant", "Recessive"};
-        tlv.addItem(temp_trait_array[(int)(Math.random()*4)], temp_weights[(int)(Math.random()*2)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+4], temp_weights[(int)(Math.random()*2)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+6], temp_weights[(int)(Math.random()*2)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*3))+8], temp_weights[(int)(Math.random()*2)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+11], temp_weights[(int)(Math.random()*2)]);
-        tlv.addItem(temp_trait_array[((int)(Math.random()*2))+13], temp_weights[(int)(Math.random()*2)]);*/
 
     }
 
@@ -289,5 +292,76 @@ public class CurrentCandidate extends AppCompatActivity
             }
 
         }
+    }
+
+    public class PictureSearch extends AsyncTask<Void, Void, Boolean> {
+
+        PictureSearch() {
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            UserAuth user = UserAuth.getInstance();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Log.w("Error in PicSearch", "");
+                return false;
+            }
+            InputStream ip = null;
+            String result = null;
+            try {
+
+                Bundle bundle = getIntent().getExtras();
+                URL apiURL = new URL("http://bloomgenetics.tech/api/v1/images/" + bundle.getInt("candidate_iid"));
+                HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
+                client.setRequestMethod("GET");
+                client.addRequestProperty("Content-type", "application/x-www-form-urlencoded");
+                client.addRequestProperty("charset", "utf-8");
+                byte[] ba = UserAuth.getInstance().getAuthorization().getBytes();
+                client.addRequestProperty("Authorization", "Basic " + Base64.encodeToString(ba,Base64.NO_WRAP));
+                client.setUseCaches(false);
+                ip = new BufferedInputStream(client.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ip,"UTF-8"),8);
+                StringBuilder sb = new StringBuilder();
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line+"\n");
+                }
+                result = sb.toString();
+                Log.w("Candidate Pic Result",result);
+            } catch (Exception e) {
+                Log.w("Pic Error #741",e + "");
+            } finally {
+            }
+            try {
+                JSONObject jRes = new JSONObject(result);
+                Log.w("Image jRes", ""+jRes);
+                picture_object = jRes.getJSONObject("data");
+                Log.w("Picture_Object", ""+picture_object);
+                String image_data = picture_object.getString("data");
+                Log.w("Image_Data", ""+image_data);
+                decodedString = Base64.decode(image_data.getBytes(), Base64.URL_SAFE);
+                Log.w("Decoded String", ""+decodedString);
+                image = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            } catch(Exception e) {
+
+            }
+
+            return true;
+        }
+
+        // Checks to see if user token is same as last time to avoid having to log in every time.
+        private void confirmToken(String token) {
+            //URL apiURL = new URL("http://" + mEmail + ":" + token + "@bloomgenetics.tech/api/v1/auth");
+        }
+        @Override
+        protected void onPostExecute(final Boolean success) {
+
+            Log.w("Bitmap", ""+image);
+            ImageView cand_img = (ImageView)findViewById(R.id.candidate_picture);
+            cand_img.setImageBitmap(image);
+        }
+
     }
 }

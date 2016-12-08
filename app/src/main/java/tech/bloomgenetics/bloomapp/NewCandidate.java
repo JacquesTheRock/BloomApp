@@ -77,6 +77,8 @@ public class NewCandidate extends AppCompatActivity
     public List<Integer> traits_insert = new ArrayList<>();
     public int[] traitIDs;
     private JSONArray traits = null;
+    private JSONObject image_object = null;
+    public int image_id = 0;
     public String img_result = "";
     public List<String> traits_in_project = new ArrayList<>();
     public static final int MEDIA_TYPE_IMAGE = 1;
@@ -165,6 +167,7 @@ public class NewCandidate extends AppCompatActivity
         int pool2;
         int pool3;
         int pool4;
+        int iid = image_id;
 
         String trait1 = ((EditText) findViewById(R.id.new_cand_t1)).getText().toString();
         if (!((EditText) findViewById(R.id.t1_pool)).getText().toString().equals("")) {
@@ -211,7 +214,7 @@ public class NewCandidate extends AppCompatActivity
         String dom_rec4 = String.valueOf(dom_rec_rb4.getText());
 
         Log.w("Pool values", pool1 + " " + pool2 + " " + pool3 + " " + pool4);
-        getTraits = new GetTraitSearch(trait1, dom_rec1, pool1, trait2, dom_rec2, pool2, trait3, dom_rec3, pool3, trait4, dom_rec4, pool4);
+        getTraits = new GetTraitSearch(trait1, dom_rec1, pool1, trait2, dom_rec2, pool2, trait3, dom_rec3, pool3, trait4, dom_rec4, pool4, iid);
         getTraits.execute((Void) null);
 
         //Intent intent = new Intent(this.getBaseContext(), MainPage.class);
@@ -421,9 +424,11 @@ public class NewCandidate extends AppCompatActivity
 
     public class CandidateCreateTask extends AsyncTask<Void, Void, Boolean> {
         int[] traits;
+        int iid = 0;
 
-        CandidateCreateTask(int[] t) {
+        CandidateCreateTask(int[] t, int img_id) {
             traits = t;
+            iid = img_id;
             Log.w("Trait Array", "" + traits);
         }
 
@@ -450,6 +455,8 @@ public class NewCandidate extends AppCompatActivity
                     q += "," + traits[i];
                 */
                 Candidate c = new Candidate();
+                Log.w("Passing Image ID", ""+iid);
+                c.setImgId(iid);
                 c.setTraits(traits);
                 String q = c.toString();
                 Log.w("Create Candidate Data", q);
@@ -474,9 +481,9 @@ public class NewCandidate extends AppCompatActivity
                     sb.append(line + "\n");
                 }
                 result = sb.toString();
-                Log.w("Cross Creation", result);
+                Log.w("Candidate Creation", result);
             } catch (Exception e) {
-                Log.w("Cross Creation", e + "");
+                Log.w("Candidate Creation", e + "");
             } finally {
             }
 
@@ -541,8 +548,9 @@ public class NewCandidate extends AppCompatActivity
         String t4 = "";
         String dr4 = "";
         int p4 = 0;
+        int iid = 0;
 
-        GetTraitSearch(String trt1, String dmrc1, int pl1, String trt2, String dmrc2, int pl2, String trt3, String dmrc3, int pl3, String trt4, String dmrc4, int pl4) {
+        GetTraitSearch(String trt1, String dmrc1, int pl1, String trt2, String dmrc2, int pl2, String trt3, String dmrc3, int pl3, String trt4, String dmrc4, int pl4, int img_id) {
             t1 = trt1;
             dr1 = dmrc1;
             p1 = pl1;
@@ -555,6 +563,7 @@ public class NewCandidate extends AppCompatActivity
             t4 = trt4;
             dr4 = dmrc4;
             p4 = pl4;
+            iid = img_id;
         }
 
         @Override
@@ -634,7 +643,7 @@ public class NewCandidate extends AppCompatActivity
             }
 
             Log.w("Pool values", p1 + " " + p2 + " " + p3 + " " + p4);
-            traitCreate = new TraitCreateTask(t1, dr1, p1, t2, dr2, p2, t3, dr3, p3, t4, dr4, p4);
+            traitCreate = new TraitCreateTask(t1, dr1, p1, t2, dr2, p2, t3, dr3, p3, t4, dr4, p4, iid);
             traitCreate.execute((Void) null);
 
         }
@@ -654,8 +663,9 @@ public class NewCandidate extends AppCompatActivity
         String t4 = "";
         String dr4 = "";
         int p4 = 0;
+        int iid = 0;
 
-        GetTraitSearch2(String trt1, String dmrc1, int pl1, String trt2, String dmrc2, int pl2, String trt3, String dmrc3, int pl3, String trt4, String dmrc4, int pl4) {
+        GetTraitSearch2(String trt1, String dmrc1, int pl1, String trt2, String dmrc2, int pl2, String trt3, String dmrc3, int pl3, String trt4, String dmrc4, int pl4, int img_id) {
             t1 = trt1;
             dr1 = dmrc1;
             p1 = pl1;
@@ -668,6 +678,7 @@ public class NewCandidate extends AppCompatActivity
             t4 = trt4;
             dr4 = dmrc4;
             p4 = pl4;
+            iid = img_id;
         }
 
         @Override
@@ -746,7 +757,7 @@ public class NewCandidate extends AppCompatActivity
                 Log.w("Error:", e);
             }
 
-            ttID = new TraitsToId(t1, t2, t3, t4);
+            ttID = new TraitsToId(t1, t2, t3, t4, iid);
             ttID.execute((Void) null);
 
         }
@@ -758,12 +769,14 @@ public class NewCandidate extends AppCompatActivity
         String t2;
         String t3;
         String t4;
+        int iid = 0;
 
-        TraitsToId(String tr1, String tr2, String tr3, String tr4) {
+        TraitsToId(String tr1, String tr2, String tr3, String tr4, int img_id) {
             t1 = tr1;
             t2 = tr2;
             t3 = tr3;
             t4 = tr4;
+            iid = img_id;
         }
 
         @Override
@@ -848,7 +861,7 @@ public class NewCandidate extends AppCompatActivity
                 traitIDs[i] = traits_insert.get(i);
             }
 
-            createTask = new CandidateCreateTask(traitIDs);
+            createTask = new CandidateCreateTask(traitIDs, iid);
             createTask.execute((Void) null);
 
         }
@@ -867,8 +880,9 @@ public class NewCandidate extends AppCompatActivity
         String t4 = "";
         String dr4 = "";
         int p4 = 0;
+        int iid = 0;
 
-        TraitCreateTask(String trt1, String dmrc1, int pl1, String trt2, String dmrc2, int pl2, String trt3, String dmrc3, int pl3, String trt4, String dmrc4, int pl4) {
+        TraitCreateTask(String trt1, String dmrc1, int pl1, String trt2, String dmrc2, int pl2, String trt3, String dmrc3, int pl3, String trt4, String dmrc4, int pl4, int img_id) {
             t1 = trt1;
             dr1 = dmrc1;
             p1 = pl1;
@@ -881,6 +895,7 @@ public class NewCandidate extends AppCompatActivity
             t4 = trt4;
             dr4 = dmrc4;
             p4 = pl4;
+            iid = img_id;
         }
 
         @Override
@@ -1052,7 +1067,7 @@ public class NewCandidate extends AppCompatActivity
 
         @Override
         protected void onPostExecute(Boolean aBoolean) {
-            getTraits2 = new GetTraitSearch2(t1, dr1, p1, t2, dr2, p2, t3, dr3, p3, t4, dr4, p4);
+            getTraits2 = new GetTraitSearch2(t1, dr1, p1, t2, dr2, p2, t3, dr3, p3, t4, dr4, p4, iid);
             getTraits2.execute((Void) null);
         }
     }
@@ -1084,7 +1099,7 @@ public class NewCandidate extends AppCompatActivity
                 byte[] ba1 = bao.toByteArray();
                 String image = Base64.encodeToString(ba1, Base64.NO_WRAP);
 
-                String q = "data:" + image;
+                String q = "{" + "\"data\":\"" + image + "\"," + "\"type\": \"jpeg\"" + "}";
 
                 URL apiURL = new URL("http://bloomgenetics.tech/api/v1/images");
                 HttpURLConnection client = (HttpURLConnection) apiURL.openConnection();
@@ -1104,15 +1119,27 @@ public class NewCandidate extends AppCompatActivity
                 BufferedReader reader = new BufferedReader(new InputStreamReader(ip, "UTF-8"));
                 StringBuilder sb = new StringBuilder();
                 String line = null;
-                Log.w("Flag", "76");
+                //Log.w("Data sent", q);
                 while ((line = reader.readLine()) != null) {
                     sb.append(line + "\n");
                 }
                 img_result = sb.toString();
-                Log.w("Image Created!", "");
+
+                JSONObject jImgRes = new JSONObject(img_result);
+                image_object = jImgRes.getJSONObject("data");
+                Log.w("Image Data", ""+image_object);
+
+                image_id = image_object.getInt("iid");
+                Log.w("Image ID", ""+image_id);
             } catch (Exception e) {
-                Log.w("Trait Creation Error", e + "");
+                Log.w("Image Creation Error", e + "");
             } finally {
+            }
+
+            try {
+
+            } catch(Exception e) {
+                Log.w("Image Data Error", "");
             }
 
 
@@ -1122,8 +1149,7 @@ public class NewCandidate extends AppCompatActivity
 
         @Override
         protected void onPostExecute(Boolean aBoolean) {
-            //getTraits2 = new GetTraitSearch2(t1, dr1, p1, t2, dr2, p2, t3, dr3, p3, t4, dr4, p4);
-            //getTraits2.execute((Void) null);
+
         }
     }
 

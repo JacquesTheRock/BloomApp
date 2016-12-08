@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
@@ -49,7 +50,7 @@ import android.widget.TextView;
 public class CurrentCross extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    UserProjectSearch projTask;
+    ProjectCandidateSearch candTask;
     ParentTraitSearch traitSearch;
     CandidateListView clv;
     TraitListView2 tlv;
@@ -78,8 +79,8 @@ public class CurrentCross extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-        projTask = new UserProjectSearch();
-        projTask.execute((Void)null);
+        candTask = new ProjectCandidateSearch();
+        candTask.execute((Void)null);
         traitSearch = new ParentTraitSearch();
         traitSearch.execute((Void)null);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -209,9 +210,9 @@ public class CurrentCross extends AppCompatActivity
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserProjectSearch extends AsyncTask<Void, Void, Boolean> {
+    public class ProjectCandidateSearch extends AsyncTask<Void, Void, Boolean> {
 
-        UserProjectSearch() {
+        ProjectCandidateSearch() {
         }
 
         @Override
@@ -272,6 +273,7 @@ public class CurrentCross extends AppCompatActivity
         protected void onPostExecute(final Boolean success) {
             String name = "";
             int cand_id = 0;
+            int cand_iid = 0;
             JSONArray traits;
             int i;
 
@@ -287,6 +289,7 @@ public class CurrentCross extends AppCompatActivity
                     Log.w("Candidate Info", "" + json);
 
                     cand_id = json.getInt("id");
+                    cand_iid = json.getInt("imageId");
                     name = "Candidate #" + cand_id;
                     if (json.get("traits").equals(null)) {
                         traits = new JSONArray();
@@ -326,6 +329,7 @@ public class CurrentCross extends AppCompatActivity
                                         mainIntent.putExtra("cross_p1", bundle.getInt("cross_p1"));
                                         mainIntent.putExtra("cross_p2", bundle.getInt("cross_p2"));
                                         mainIntent.putExtra("candidate_name", "Candidate #" + selected.getInt("id"));
+                                        mainIntent.putExtra("candidate_iid", selected.getInt("imageId"));
                                         mainIntent.putExtra("candidate_id", String.valueOf(selected.getInt("id")));
                                         mainIntent.putExtra("candidate_traits", String.valueOf(selected.get("traits")));
                                     }
@@ -417,6 +421,7 @@ public class CurrentCross extends AppCompatActivity
             try {
 
                 NumberFormat formatter = new DecimalFormat("#0.0%");
+                if(!traits.equals(null)){
                     for (i = 0; i < traits.length(); i++) {
 
 
@@ -436,6 +441,7 @@ public class CurrentCross extends AppCompatActivity
                         tlv.addItem2(trait_name, dr, trait_c_odds, trait_x_odds);
 
                     }
+                }
 
             } catch (Exception e) {
                 Log.w("Error:", e);
